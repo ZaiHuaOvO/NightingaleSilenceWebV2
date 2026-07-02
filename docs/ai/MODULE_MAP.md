@@ -1,0 +1,141 @@
+# 模块地图
+
+## 当前代码状态
+
+当前 V2 已完成第一版应用外壳和占位页面骨架：
+
+- `src/main.ts`：创建 Vue app，注册 Pinia 和 Router。
+- `src/App.vue`：渲染轻量全局导航和 `<router-view />`。
+- `src/router/index.ts`：使用 `createWebHashHistory()`，已注册首页、FFXIV 分类页、两个工具占位页和 About 占位页。
+- `src/config/site.ts`：集中维护站点名称、首页导航、分类入口、工具入口、来源项目路径和 API base path。
+- `src/composables/useFetch.ts`：提供第一版统一请求封装。
+- `src/services/apiBoundaries.ts`：提供 FFXIV 两个旧项目 API 边界信息。
+- `src/stores/locale.ts`：提供基础 locale store，文案文件尚未接入。
+- `src/styles/`：已建立第一版 reset/theme/base/components/utilities 公共 CSS。
+- `src/components/`：已建立第一版 `AppButton.vue`、`AppPanel.vue`、`AppTopNav.vue`。
+- `src/pages/ffxiv/components/ToolApiStatus.vue`：为工具占位页提供统一 API 边界和连通性检查展示。
+- `src/pages/`：已建立首页、FFXIV 分类页、NSGlamour 占位页、NSPortable 占位页和 About 占位页。
+
+当前尚未实现：
+
+- `src/lib/plate/`
+- `src/lib/glamour/`
+- 旧项目真实业务页面和 Canvas 渲染迁移
+- UI 本地化文案加载和切换控件
+
+当前已存在：
+
+- `docs/ai/MODULES/`：模块文档目录，具体模块文档逐步补齐。
+
+## 计划路由总览
+
+| 路由 | 页面组件 | 当前状态 |
+|---------|---------|---------|
+| `#/` | `src/pages/home/HomePage.vue` | 已接入占位视觉首页 |
+| `#/ffxiv` | `src/pages/ffxiv/FfxivIndexPage.vue` | 已接入分类导航骨架 |
+| `#/ffxiv/plate` | `src/pages/plate/PlatePage.vue` | 已接入 NSPortable 迁移占位页和统一工具页外壳 |
+| `#/ffxiv/glamour` | `src/pages/glamour/GlamourPage.vue` | 已接入 NSGlamour 迁移占位页和统一工具页外壳 |
+| `#/about` | `src/pages/about/AboutPage.vue` | 已接入 About 占位页 |
+| `#/style-lab` | `src/pages/style-lab/StyleLabPage.vue` | 隐藏内部样式探索页，不写入导航 |
+
+> 注意：当前页面只是 V2 骨架和迁移入口，不代表旧项目功能已经完成迁移。
+
+当前导航行为：
+
+- `#/` 首页使用首页专属右上导航，不显示 `AppTopNav`。
+- `#/ffxiv`、`#/ffxiv/glamour`、`#/ffxiv/plate`、`#/about` 显示轻量 `AppTopNav`。
+- `AppTopNav` 提供回首页入口。
+- `FF14工具` 是父级分类入口，在 `AppTopNav` 中用下拉菜单承载 `幻化工房`、`铭牌工房` 等子工具；不要把父级分类和子工具做成同一排并列项。
+- `AppTopNav` 不作为大型全站 header。
+
+## NSHome 首页（占位骨架已接入）
+
+- **计划路由**：`#/`
+- **来源项目**：`NSHome`
+- **计划组件**：`src/pages/home/HomePage.vue`
+- **页面类型**：个人站首页 / 视觉入口页
+- **当前状态**：已接入第一版占位视觉，不作为最终设计稿。
+- **迁移目标**：
+  - 承接夜莺不语个人站主页视觉和工具入口。
+  - 为工具、博客、创作信息和未来分类保留扩展余地。
+  - 使用 V2 公共 CSS 和公共组件，不复制旧静态站的零散样式。
+  - 作为纯视觉首页，为 `#/ffxiv` 分类导航提供稳定入口。
+  - 首页粉蓝像素风、人物舞台、贴纸和浮动图标属于页面专属样式，不进入全站公共组件默认外观。
+- **模块文档**：`docs/ai/MODULES/home.md`。
+
+## FFXIV 分类导航页（占位骨架已接入）
+
+- **计划路由**：`#/ffxiv`
+- **计划组件**：`src/pages/ffxiv/FfxivIndexPage.vue`
+- **页面类型**：分类导航页 / 工具入口页
+- **当前状态**：已读取 `src/config/site.ts` 中的 `ffxivTools` 生成工具卡。
+- **包含工具**：
+  - `#/ffxiv/glamour`：幻化工房
+  - `#/ffxiv/plate`：铭牌工房
+- **迁移目标**：
+  - 承接首页 `FFXIV` 主入口。
+  - 展示当前和未来 FFXIV 工具，不把工具列表塞进纯视觉首页。
+  - 使用 V2 公共按钮、卡片、面板和导航样式。
+  - 作为模块/分类级页面，可以有 FFXIV 导航布局，但不继承首页强像素装饰。
+  - 只代表当前第一阶段 FFXIV 分类，不代表整站长期只服务 FFXIV。
+- **模块文档**：`docs/ai/MODULES/ffxiv.md`。
+
+## NSPortable 铭牌编辑器（迁移占位页已接入）
+
+- **计划路由**：`#/ffxiv/plate`
+- **来源项目路径**：`H:\NightingaleSilenceWeb\NSPortable\`
+- **后端**：Node.js HTTP server，开发端口 `3456`
+- **核心能力**：Canvas 铭牌合成、PNG/ZIP/PSD/JSX 导出、多语言、主题/外观配置。
+- **当前状态**：仅接入迁移占位页、统一工具页外壳和 API 边界信息，未迁移旧业务。
+- **当前 API 检查**：通过 V2 `/api/plate/presets` 检查旧后端连通性；代理 rewrite 到旧后端 `/api/presets`。
+- **迁移目标**：
+  - 旧项目行为先抽取为 API/数据/视觉契约，最终后端可按 V2 新规则重写。
+  - 旧 Canvas 渲染逻辑或等价新实现迁入 `src/lib/plate/`。
+  - 页面交互拆到 `src/pages/plate/`。
+  - 与 V2 公共按钮、面板、表单、工具栏样式对齐。
+  - API 和素材请求通过 `/api/plate`、`/img`、`/img-preview` 接入。
+- **模块文档**：`docs/ai/MODULES/plate.md`。
+
+## NSGlamour 幻化工具（迁移占位页已接入）
+
+- **计划路由**：`#/ffxiv/glamour`
+- **来源项目路径**：`H:\NightingaleSilenceWeb\NSGlamour\`
+- **后端**：Python Flask，开发端口 `8765`
+- **核心能力**：`.chara` 解析、装备/染剂映射、石之家与 Eorzea Collection 导入、模板 Canvas 渲染、图片裁剪、PNG 导出、装备文案生成。
+- **当前状态**：仅接入迁移占位页、统一工具页外壳和 API 边界信息，未迁移旧业务。
+- **当前 API 检查**：通过 V2 `/api/glamour/health` 检查旧后端连通性；代理 rewrite 到旧后端 `/api/health`。
+- **迁移目标**：
+  - 旧项目行为先抽取为 API/数据/视觉契约，最终后端可按 V2 新规则重写。
+  - 旧模板渲染器或等价新实现迁入 `src/lib/glamour/`。
+  - `/template` 和 `/equipinfo` 的核心交互拆到 `src/pages/glamour/`。
+  - 保持装备、染剂、多语言和模板渲染规则与原项目兼容。
+  - API 通过 `/api/glamour` 接入。
+- **模块文档**：`docs/ai/MODULES/glamour.md`。
+
+## 模块文档规则
+
+新增页面或迁移复杂模块前，先在 `docs/ai/MODULES/` 建立对应文档，至少说明：
+
+1. 来源项目和迁移范围。
+2. 目标路由和页面入口。
+3. 主要组件拆分。
+4. API 和数据依赖。
+5. 公共 CSS/组件复用策略。
+6. 验证清单。
+
+如果页面非常简单，可以在计划中说明不单独建模块文档的原因；否则默认应建立模块文档。
+
+样式相关模块文档必须说明该模块的样式层级：全站级、模块/分类级或页面专属。默认不要把页面专属视觉写进全站公共 CSS 或公共组件默认样式。
+
+## Style Lab 内部样式探索页
+
+- **计划路由**：`#/style-lab`
+- **计划组件**：`src/pages/style-lab/StyleLabPage.vue`
+- **页面类型**：隐藏内部设计预览页
+- **当前状态**：用于比较候选皮肤，不是用户可见主题切换系统。
+- **边界**：
+  - 不写入首页、顶部导航或 `src/config/site.ts` 公开入口。
+  - 候选皮肤必须通过容器选择器或可选 class 隔离。
+  - 不覆盖 `body`、`button`、`input`、`a` 等全局标签默认行为。
+  - 不影响 `NSGlamour`、`NSPortable` 等工具页迁移默认样式。
+- **模块文档**：`docs/ai/MODULES/style-lab.md`。
