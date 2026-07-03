@@ -39,27 +39,36 @@
 
 2026-07-03 已完成第十二段自定义肖像最小预览闭环：新增 `NSPlatePortraitUpload.vue`，在 `肖像` tab 中提供自定义图片上传和清空入口；上传图片会被前端居中裁切成 `512×840` 数据图，并按旧 `NSPortable` 顺序绘制在肖像背景之后、肖像装饰框/装饰物之前，再嵌入最终铭牌画布。此切片同时移除画布底部状态框，避免把“当前编辑/预设/图层名”这类调试型状态固定在正式预览下方；后续如需部件清单，应作为可折叠的真实编辑器列表单独设计。右侧面板提供轻量清空操作：`清空自定义图片` 只影响上传图，`清空所有选择` 同时清空当前页面草稿中的预设、素材选择和自定义图。此切片不迁移裁切弹窗、缩放拖拽取景、自定义图配置持久化、旧配置导入或导出 payload。
 
+2026-07-04 已完成第十三段结构拆分：把 NSPlate 类型定义移动到 `src/lib/plate/types.ts`；把 Canvas 绘制流程从 `NSPlateCanvasArea.vue` 拆到 `src/lib/plate/canvasRenderer.ts`；把画布 frame 尺寸和 ResizeObserver 拆到 `useNSPlateCanvasFrame.ts`；把自定义肖像文件读取和居中裁切拆到 `src/lib/plate/customPortrait.ts`；把素材面板拆为 `NSPlateAssetPanel.vue`、`NSPlateAssetSection.vue`、`NSPlateAssetCard.vue`；把画布底部操作栏拆为 `NSPlateCanvasActions.vue`；把旧 API 返回归一拆到 `nsplateAdapters.ts`，让 `nsplateApi.ts` 只负责请求。此切片只调整前端职责边界，不改变素材选择、预设应用或 Canvas 合成行为。
+
 当前 V2 代码结构：
 
 ```text
 src/lib/plate/
+├── canvasRenderer.ts
+├── customPortrait.ts
 ├── draft.ts
 ├── infoLayerFields.ts
-└── render.ts
+├── render.ts
+└── types.ts
 
 src/pages/plate/
 ├── NSPlatePage.vue
-├── types.ts
 ├── services/
+│   ├── nsplateAdapters.ts
 │   └── nsplateApi.ts
 ├── composables/
+│   ├── useNSPlateCanvasFrame.ts
 │   ├── useNSPlateData.ts
 │   └── useNSPlatePanelResize.ts
 └── components/
     ├── NSPlatePanel.vue
     ├── NSPlateChoiceButton.vue
     ├── NSPlateWorkspace.vue
+    ├── NSPlateAssetCard.vue
+    ├── NSPlateAssetSection.vue
     ├── NSPlateCanvasArea.vue
+    ├── NSPlateCanvasActions.vue
     ├── NSPlateConfigPanel.vue
     ├── NSPlateResizeHandle.vue
     ├── NSPlatePortraitUpload.vue
@@ -73,15 +82,15 @@ src/pages/plate/
 - `NSPlatePage.vue` 继续复用 `FfxivToolShell`，只通过 workspace slot 接入 NSPlate 私有工作区。
 - `NSPlatePage.vue` 使用 `FfxivToolShell` 的 `workspace` 模式；该模式用于真实工具工作台，隐藏占位页的大 hero、左侧 API 说明卡以及内部标题/API 状态条。正式工具页由顶部菜单承担站点和工具导航，顶部菜单下方直接进入全屏工具工作台，不再用外层卡片/面板包住工作区；`ToolApiStatus` 只保留给占位页或调试界面使用。
 - 当前 `NSPlateWorkspace.vue` 是干净的迁移工作台骨架，还不是最终 `FFXIV` 工具页统一骨架。后续整理 `#/ffxiv/glamour` 和 `#/ffxiv/plate` 共享工作台时，应把通用预览区、配置区、tab 容器上移到 `src/pages/ffxiv/components/`，让 NSPlate 只提供业务 slot。
-- `services/nsplateApi.ts` 负责调用 `/api/plate/presets`、`/api/plate/files`，并把旧接口返回归一成 V2 展示模型。
+- `services/nsplateApi.ts` 负责调用 `/api/plate/presets`、`/api/plate/files`；`services/nsplateAdapters.ts` 负责把旧接口返回归一成 V2 展示模型。
 - 素材 URL 由 adapter 根据 `_meta.imgBase`、`_meta.previewImgBase` 生成；兼容旧服务可能返回的 `/portable/img`、`/portable/img-preview/256` 前缀，组件不硬编码 `localhost`、端口或旧挂载前缀。
 - `useNSPlateData.ts` 只负责请求生命周期、错误状态、当前选中预设和素材。
 - `src/lib/plate/infoLayerFields.ts` 负责维护旧 `国际服`、`国服`、`幻海流` 信息预设的固定字段定义，包括 `slotId`、旧字段名、V2 本地化 key、fallback 标题和游戏术语确认状态。
 - 信息层字段定义只能作为契约盘点和后续迁移资料，不得默认出现在 `#/ffxiv/plate` 正式工作台 UI；旧配置里的 `layer.name` 也不能覆盖 V2 固定显示字段名。
 - `NSPlatePanel.vue` 是 NSPlate 私有面板壳，承接右侧面板中“面板容器 + 标题 + 数量/状态”的重复样式；暂不提升到全站公共组件，等 NSGlamour 等工具页确实复用同类结构后再评估上移。
 - `NSPlateChoiceButton.vue` 是 NSPlate 私有可选项按钮，承接预设列表和素材 scope tab 的基础按钮壳、active 色和 label/meta 排版；素材缩略图卡、字段行和右侧 tab 暂时不纳入，避免过度抽象。
-- `NSPlateCanvasArea.vue` 当前负责预览外壳、真实 canvas DOM 挂载、最小系统素材层合成和自定义肖像预览合成；画布尺寸、坐标和渲染计划来自 `src/lib/plate/render.ts`。该组件仍不承接裁切弹窗、信息层、导出 payload 或缩放拖拽视口。
-- `NSPlatePortraitUpload.vue` 当前只负责选择图片、生成 `512×840` 居中裁切数据图和清空自定义图；它不做旧版裁切弹窗、拖拽取景、配置持久化或导出数据收集。
+- `NSPlateCanvasArea.vue` 当前负责预览外壳、真实 canvas DOM 挂载和渲染生命周期；可用尺寸测量和 frame style 来自 `useNSPlateCanvasFrame.ts`，画布尺寸、坐标和渲染计划来自 `src/lib/plate/render.ts`，实际绘制流程来自 `src/lib/plate/canvasRenderer.ts`。该组件仍不承接裁切弹窗、信息层、导出 payload 或缩放拖拽视口。
+- `NSPlatePortraitUpload.vue` 当前只负责选择图片、展示已选文件和上报错误；文件读取、`512×840` 居中裁切和数据图生成来自 `src/lib/plate/customPortrait.ts`。它不做旧版裁切弹窗、拖拽取景、配置持久化或导出数据收集。
 - `NSPlatePreviewShell.vue` 当前只作为旧文件名兼容包装，后续新代码应直接使用 `NSPlateCanvasArea.vue`。
 - `NSPlateConfigPanel.vue` 承接右侧三 tab、滚动容器和配置面板边界；不包含具体预设、素材或信息层业务。
 - `NSPlateResizeHandle.vue` 和 `useNSPlatePanelResize.ts` 承接桌面端配置面板宽度调整，默认宽度 `420px`、最小宽度 `320px`、最大宽度 `52vw`，并写入 V2 私有键 `nsplate.configPanelWidthPx.v1`。
@@ -98,7 +107,7 @@ src/pages/plate/
 仍未迁移：
 
 - 完整 Canvas 视口交互、hover overlay、缩放控件和导出级图层数据收集。
-- 自定义肖像裁切弹窗、拖拽取景、缩放滑块、旧配置持久化和导出 payload。
+- 自定义肖像裁切弹窗、拖拽取景、缩放滑块、出框式透明 PNG 模式、旧配置持久化和导出 payload。
 - 信息图层的文本内容编辑、图标选择、字体参数、队徽、多选 bar、旧配置读取和 Canvas 渲染。
 - PNG、ZIP、PSD、JSX 导出。
 - 旧用户配置读取和迁移。
@@ -281,6 +290,49 @@ src/lib/plate/render/
 - 恢复自定义肖像上传、裁切为 `512×840`、滑块缩放、拖拽取景、确认/取消。
 - 自定义肖像作为一类图层进入 canvas 合成和导出数据。
 - 清空自定义图片只影响自定义图层，不清空其他素材选择。
+- 在旧裁切能力基础上新增 V2 增强：出框式自定义肖像模式。第一版不做自动抠图，要求用户上传透明 PNG。
+- 出框式模式使用一条可拖动的横向分界线控制同一张透明角色图的上下区域：分界线以下按肖像框裁切进入框内，分界线以上允许绘制到肖像框外。
+
+出框式模式评估：
+
+- 技术上可行，不需要 AI。核心是同一张透明 PNG 分两次绘制：一次 clip 到 `512×840` 肖像框内，一次只绘制分界线上方的出框区域。
+- 第一版使用横向分界线，默认位于角色胸口/脖子附近，用户可上下拖动。这样身体和衣服天然留在肖像边界里，头发、帽子、武器、手势或特效可以冲出框。
+- 不建议第一版做自动抠图、画笔蒙版或多边形蒙版。自动抠图涉及模型体积、性能、隐私或外部 API；画笔/多边形交互复杂，等基础模式稳定后再评估。
+- 后续可增强软边缘或手动画笔蒙版，让出框边缘更自然，但不能影响标准裁切模式的旧项目兼容性。
+
+出框式渲染顺序：
+
+```text
+铭牌底层
+-> 肖像背景
+-> 框内角色层：clip 到 512×840 肖像框
+-> 肖像装饰框 / 肖像装饰物 / 肖像外框 / 铭牌外框
+-> 出框角色层：只绘制分界线上方，不限制在肖像框内
+-> 铭牌顶部/底部装饰、铭牌装饰物、信息层（后续按旧导出契约校准）
+```
+
+第一版数据结构方向：
+
+```ts
+interface NSPlateCustomPortraitImage {
+  mode: 'standard' | 'popout'
+  dataUrl: string
+  fileName: string
+  width: number
+  height: number
+  scale: number
+  offsetX: number
+  offsetY: number
+  splitY?: number
+}
+```
+
+说明：
+
+- `standard` 对应旧项目裁切语义，确认后输出固定 `512×840` 数据图。
+- `popout` 保留透明 PNG 原图或可复算的裁切状态，渲染时按 `scale`、`offsetX`、`offsetY` 和 `splitY` 分成框内/出框两层。
+- `splitY` 使用肖像坐标系，范围为 `0-840`；例如 `splitY = 260` 表示肖像坐标 260 以下进框，260 以上出框。
+- 导出阶段应能把出框模式拆成两个导出图层：`框内角色层` 和 `出框角色层`，避免 PSD/ZIP 中丢失可编辑性。
 
 建议拆分：
 
@@ -291,6 +343,10 @@ src/pages/plate/components/
 
 src/pages/plate/composables/
 └── usePlateCustomPortrait.ts
+
+src/lib/plate/
+├── customPortrait.ts
+└── canvasRenderer.ts
 ```
 
 验证：
@@ -298,6 +354,9 @@ src/pages/plate/composables/
 - 上传横图、竖图、小图、大图都能裁切。
 - 裁切结果在画布和导出中一致。
 - 弹窗关闭、重新上传、清空都不破坏其他草稿状态。
+- 标准裁切模式继续通过旧项目对照样本；不能改变已验证的系统素材层 canvas hash。
+- 出框模式上传透明 PNG 后，分界线以下内容被限制在肖像框内，分界线以上内容可以越过肖像边界。
+- 出框模式切换回标准模式或清空自定义图时，不影响预设、素材和信息层草稿。
 
 ### 阶段 F：信息图层正式迁移
 

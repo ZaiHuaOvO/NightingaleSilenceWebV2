@@ -12,6 +12,16 @@
 4. `AppButton`、`AppField`、`AppToolbar`、`AppTabs`、`AppStatus`、`AppPixelWindow` 和 `AppTopNav` 是当前公共控件基准。
 5. 工房工作台变量暂不继续扩展，等第一个项目迁移完成后再按真实重复结构评估。
 
+## 顶栏结构
+
+当前非首页通用顶栏由三层组成：
+
+- `src/components/AppTopNav.vue`：只负责顶栏外壳、品牌回首页、`菜单` 和 `设置` 两个弹窗的开关状态、点击外部关闭、路由切换关闭。
+- `src/components/AppTopNavMenu.vue`：只负责 `菜单 | MENU` 入口、分类切换和站点导航链接。
+- `src/components/AppTopNavSettings.vue`：只负责 `设置 | CONFIG` 入口、`day / night` 显示模式和中/日/韩/英 UI 语言切换。
+
+顶栏样式集中在 `src/styles/components/top-nav.css`，并通过 `src/styles/index.css` 以 `components` layer 引入；不要再把顶栏大段样式塞回 `AppTopNav.vue` 或 `src/styles/components.css`。
+
 ## 本轮审计处理
 
 - 将公共组件里的常见裸色收敛到正式 token：强调文字、hover 边框、表单内阴影、状态提示色和顶栏弹窗尺寸。
