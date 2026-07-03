@@ -22,6 +22,14 @@
 
 ## 当前实验内容
 
+### 正式公共组件基准区
+
+- 文件：`src/pages/style-lab/StyleLabPage.vue`
+- 位置：页面顶部，放在 `data-style-preview='pixel-soft'` 实验容器外。
+- 用途：用正式 `theme.css` token 预览 `AppPixelWindow`、`AppToolbar`、`AppButton`、`AppTabs`、`AppField`、`AppStatus` 等公共组件的基准外观。
+- 限制：这一块不使用 `.ns-pixel-*` 实验类，不受 `pixel-soft`、`light`、`cyber-night` 实验变量影响。
+- 后续迁移 `NSPlate`、`NSGlamour` 时，如果基础控件外观拿不准，先对照这一块。
+
 ### pixel-soft
 
 - 文件：`src/styles/experiments/pixel-soft.css`
@@ -78,5 +86,6 @@ Style Lab 当前在 `pixel-soft` 内提供以下内部强度模式，使用 `dat
 
 1. `npm run build` 通过。
 2. 浏览器访问 `#/style-lab` 能正常渲染。
-3. 首页、FFXIV 分类页和工具占位页默认外观不受影响。
-4. 桌面和移动宽度下预览页无明显溢出、遮挡或文本挤压。
+3. 正式公共组件基准区不被 `pixel-soft` 的实验 token 改色。
+4. 首页、FFXIV 分类页和工具占位页默认外观不受影响。
+5. 桌面和移动宽度下预览页无明显溢出、遮挡或文本挤压。

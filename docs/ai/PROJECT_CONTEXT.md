@@ -44,6 +44,7 @@ NightingaleSilenceWebV2/
 │       ├── PROJECT_CONTEXT.md
 │       ├── ARCHITECTURE_PLAN.md
 │       ├── CODE_STRUCTURE_RULES.md
+│       ├── STYLE_AUDIT.md
 │       ├── MIGRATION_PLAN.md
 │       ├── MODULE_MAP.md
 │       ├── API_CONVENTIONS.md
@@ -167,6 +168,7 @@ src/
 
 - 每次新会话先读 `docs/OWNER_VISION.md`，确认用户手写的整站愿景和分类边界。
 - 涉及整体架构、路由、主题、端口：读 `docs/ai/ARCHITECTURE_PLAN.md`。
+- 涉及全站样式审计、公共 token、顶栏弹窗和 Style Lab 边界：读 `docs/ai/STYLE_AUDIT.md`。
 - 涉及复杂业务拆分、模块边界、重构：读 `docs/ai/CODE_STRUCTURE_RULES.md`。
 - 涉及旧项目迁移顺序和边界：读 `docs/ai/MIGRATION_PLAN.md`。
 - 涉及页面、模块状态：读 `docs/ai/MODULE_MAP.md`。
