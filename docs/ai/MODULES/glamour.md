@@ -5,7 +5,7 @@
 - 模块状态：迁移占位页已接入，真实业务待重写/迁移。
 - 目标路由：`#/ffxiv/glamour`。
 - 当前页面入口：`src/pages/glamour/GlamourPage.vue`。
-- 来源项目路径：`H:\NightingaleSilenceWeb\NSGlamour`。
+- 来源项目路径：`NSGlamour`。
 - 当前 API 边界：V2 使用 `/api/glamour/*`，开发代理 rewrite 到旧服务 `/api/*`。
 - 当前连通性检查：`/api/glamour/health`，对应旧服务 `/api/health`。
 - 当前旧服务端口：`8765`。
@@ -49,7 +49,7 @@
 旧后端关键入口位于：
 
 ```text
-H:\NightingaleSilenceWeb\NSGlamour\scripts\app.py
+../NSGlamour/scripts/app.py
 ```
 
 已确认旧接口：

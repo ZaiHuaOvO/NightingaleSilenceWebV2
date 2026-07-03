@@ -89,7 +89,7 @@
 ## Plate 铭牌编辑器（迁移占位页已接入）
 
 - **计划路由**：`#/ffxiv/plate`
-- **来源项目路径**：旧 `NSPortable`，`H:\NightingaleSilenceWeb\NSPortable\`
+- **来源项目路径**：旧 `NSPortable`
 - **后端**：Node.js HTTP server，开发端口 `3456`
 - **核心能力**：Canvas 铭牌合成、PNG/ZIP/PSD/JSX 导出、多语言、主题/外观配置。
 - **当前状态**：仅接入迁移占位页、统一工具页外壳和 API 边界信息，未迁移旧业务。
@@ -105,7 +105,7 @@
 ## NSGlamour 幻化工具（迁移占位页已接入）
 
 - **计划路由**：`#/ffxiv/glamour`
-- **来源项目路径**：`H:\NightingaleSilenceWeb\NSGlamour\`
+- **来源项目路径**：`NSGlamour`
 - **后端**：Python Flask，开发端口 `8765`
 - **核心能力**：`.chara` 解析、装备/染剂映射、石之家与 Eorzea Collection 导入、模板 Canvas 渲染、图片裁剪、PNG 导出、装备文案生成。
 - **当前状态**：仅接入迁移占位页、统一工具页外壳和 API 边界信息，未迁移旧业务。

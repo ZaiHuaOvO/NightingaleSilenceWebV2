@@ -5,7 +5,7 @@
 - 模块状态：迁移占位页已接入，真实业务待重写/迁移。
 - 目标路由：`#/ffxiv/plate`。
 - 当前页面入口：`src/pages/plate/PlatePage.vue`。
-- 来源项目路径：旧 `NSPortable`，`H:\NightingaleSilenceWeb\NSPortable`。
+- 来源项目路径：旧 `NSPortable`。
 - 当前 API 边界：V2 使用 `/api/plate/*`，开发代理 rewrite 到旧服务 `/api/*`。
 - 当前连通性检查：`/api/plate/presets`，对应旧服务 `/api/presets`。
 - 当前旧服务端口：`3456`。
@@ -49,8 +49,8 @@
 旧后端关键入口位于：
 
 ```text
-H:\NightingaleSilenceWeb\NSPortable\src\server\routes\api-routes.js
-H:\NightingaleSilenceWeb\NSPortable\src\server\routes\image-routes.js
+../NSPortable/src/server/routes/api-routes.js
+../NSPortable/src/server/routes/image-routes.js
 ```
 
 已确认旧接口：
