@@ -43,6 +43,7 @@ docs/ai/MODULES/<module>.md
 7. 所有用户可见固定文案、按钮文字、状态文字、aria-label、title、placeholder 和弹窗标题必须写成 `src/locales/` 文案 key；页面和组件中不直接硬编码展示文本。
 8. `src/config/site.ts` 只放路由、入口、API、项目稳定信息和文案 key，不放真实展示文案。组件渲染时通过 `useLocale().t(key)` 取当前语言文本。
 9. 旧项目迁移时，数据键、图层名、文件分类名、游戏术语等如果承担兼容字段，不能为了本地化直接改原始键；应在显示适配层增加本地化 label。
+10. `npm run check:i18n` 会检查 `.vue` 模板里的直接硬编码展示文本、静态 `aria-label/title/placeholder/alt`，以及新代码误用旧 `placeholderCopy/siteLabels` 兼容导出。新增页面后必须保证该检查通过。
 
 ## 路由注册示例
 
@@ -123,6 +124,7 @@ http://localhost:5173/#/ffxiv/xxx
 - [ ] 浏览器访问对应 hash 路由页面正常渲染。
 - [ ] 页面在 560px / 900px / 1120px+ 宽度下布局正常。
 - [ ] TypeScript 类型检查通过：`npx vue-tsc --noEmit` 或 `npm run build`。
+- [ ] 固定 UI 文案检查通过：`npm run check:i18n`。
 - [ ] 无控制台错误或警告。
 - [ ] 如果改 Canvas、拖拽、上传、裁剪、导出，使用真实数据和浏览器实际验证。
 
