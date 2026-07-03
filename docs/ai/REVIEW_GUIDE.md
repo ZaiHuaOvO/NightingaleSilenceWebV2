@@ -29,7 +29,7 @@ V2 当前是重构地基，不是旧工具功能的完整替代品。
 
 - 文档是否能说明当前真实状态。
 - 新模块是否先有模块文档。
-- 命名是否清楚，例如 V2 模块名 `Plate` 与旧项目 `NSPortable` 是否区分。
+- 命名是否清楚，例如 V2 模块名 `NSPlate` 与旧项目 `NSPortable` 是否区分。
 - 是否有明确的“不要写成一大坨”的规则。
 
 ### 前端基础
@@ -41,7 +41,7 @@ V2 当前是重构地基，不是旧工具功能的完整替代品。
 
 ### 迁移策略
 
-- Plate 和 NSGlamour 是否分别有清楚的模块边界。
+- NSPlate 和 NSGlamour 是否分别有清楚的模块边界。
 - API 契约是否先于后端重写建立。
 - Canvas、导入、导出和多语言是否有回归样本规划。
 - 旧项目复杂细节是否被记录为风险点。
@@ -51,7 +51,7 @@ V2 当前是重构地基，不是旧工具功能的完整替代品。
 这些内容当前还不是最终状态：
 
 - 首页最终视觉效果。
-- Plate 完整编辑功能。
+- NSPlate 完整编辑功能。
 - NSGlamour 完整模板和装备信息功能。
 - 新后端质量。
 - 生产部署。
@@ -80,8 +80,8 @@ npm run build
 - `docs/ai/CODE_STRUCTURE_RULES.md`
 - `docs/ai/MIGRATION_PLAN.md`
 - `docs/ai/MODULE_MAP.md`
-- `docs/api/plate.md`
-- `docs/api/glamour.md`
+- `docs/api/nsplate.md`
+- `docs/api/nsglamour.md`
 
 ## 评估反馈格式建议
 

@@ -20,7 +20,7 @@
 #/                 Home 纯视觉首页
 #/ffxiv            FFXIV 分类导航页
 #/ffxiv/glamour    NSGlamour 幻化工具
-#/ffxiv/plate      Plate 铭牌工具
+#/ffxiv/plate      NSPlate 铭牌工具
 ```
 
 ## 与首页的分工
@@ -55,8 +55,8 @@ FfxivIndexPage
 ├── 分类页标题：FFXIV
 ├── 简短副标题：数据工具入口
 ├── 工具入口网格
-│   ├── Glamour 工具卡
-│   └── Plate 工具卡
+│   ├── NSGlamour 工具卡
+│   └── NSPlate 工具卡
 └── 返回首页 / 外链辅助区
 ```
 

@@ -8,7 +8,7 @@
 - `src/services/apiBoundaries.ts`：已实现旧项目 API 边界配置读取。
 - 页面组件：FFXIV 工具占位页已接入统一工具页外壳，真实业务请求待后续迁移。
 - Vite proxy：用于开发期连接旧项目后端。
-- API 契约草案：`docs/api/plate.md`、`docs/api/glamour.md`。
+- API 契约草案：`docs/api/nsplate.md`、`docs/api/nsglamour.md`。
 
 后续业务页面应优先通过 `useFetch.ts` 发起请求，不要在组件中散落裸 `fetch`。
 
@@ -28,7 +28,7 @@
 server: {
   proxy: {
     '/api/plate': {
-      target: 'http://localhost:3456',         // Plate / 旧 NSPortable
+      target: 'http://localhost:3456',         // NSPlate / 旧 NSPortable
       changeOrigin: true,
       rewrite: (path) => path.replace(/^\/api\/plate(?=\/|$)/, '/api')
     },
@@ -47,7 +47,7 @@ server: {
 
 | 服务 | 端口 | 说明 |
 |------|------|------|
-| `Plate` | `3456` | 当前接旧 `NSPortable` 铭牌后端和素材服务 |
+| `NSPlate` | `3456` | 当前接旧 `NSPortable` 铭牌后端和素材服务 |
 | `NSGlamour` | `8765` | 幻化后端，本机项目长期使用该端口 |
 
 ## 已实现：fetch 封装
@@ -96,9 +96,9 @@ server: {
 
 ## 路径约定
 
-- Plate 业务 API：V2 前端使用 `/api/plate/...`，代理到旧后端时 rewrite 为 `/api/...`。
-- Plate 图片素材：使用 `/img/...`、`/img-preview/...`。
-- Glamour 业务 API：V2 前端使用 `/api/glamour/...`，代理到旧后端时 rewrite 为 `/api/...`。
+- NSPlate 业务 API：V2 前端使用 `/api/plate/...`，代理到旧后端时 rewrite 为 `/api/...`。
+- NSPlate 图片素材：使用 `/img/...`、`/img-preview/...`。
+- NSGlamour 业务 API：V2 前端使用 `/api/glamour/...`，代理到旧后端时 rewrite 为 `/api/...`。
 - 不在页面组件中硬编码 `localhost`、端口号或生产域名。
 - 生产环境由 Nginx 反向代理处理同名路径，并保持与开发代理一致的 rewrite 规则。
 

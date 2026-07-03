@@ -12,9 +12,9 @@
 - `src/services/apiBoundaries.ts`：提供 FFXIV 两个旧项目 API 边界信息。
 - `src/stores/locale.ts`：提供基础 locale store，文案文件尚未接入。
 - `src/styles/`：已建立第一版 reset/theme/base/components/utilities 公共 CSS。
-- `src/components/`：已建立第一版 `AppButton.vue`、`AppPanel.vue`、`AppTopNav.vue`。
-- `src/pages/ffxiv/components/ToolApiStatus.vue`：为工具占位页提供统一 API 边界和连通性检查展示。
-- `src/pages/`：已建立首页、FFXIV 分类页、NSGlamour 占位页、Plate 占位页和 About 占位页。
+- `src/components/`：已建立第一版 `AppButton.vue`、`AppPanel.vue`、`AppPixelWindow.vue`、`AppTopNav.vue`、`AppField.vue`、`AppToolbar.vue`、`AppTabs.vue`、`AppStatus.vue`。
+- `src/pages/ffxiv/components/ToolApiStatus.vue`：保留给调试或临时占位界面使用；正式工具工作台不展示内部 API 状态块。
+- `src/pages/`：已建立首页、FFXIV 分类页、NSGlamour 占位页、NSPlate 占位页和 About 占位页。
 
 当前尚未实现：
 
@@ -22,27 +22,32 @@
 - `src/lib/glamour/`
 - 旧项目真实业务页面和 Canvas 渲染迁移
 - UI 本地化文案加载和切换控件
-- `#/oc` 原创角色档案分类和详情页
+- `#/silence` 角色档案分类、`angel` / `glitch` 分组页和详情页
 
 当前已存在：
 
 - `docs/ai/MODULES/`：模块文档目录，具体模块文档逐步补齐。
+- `docs/ai/PROJECT_STRUCTURE.md`：当前代码结构、近期结构整理结果和目录职责快照。
 - `docs/api/`：API 契约草案目录，当前包含 `plate.md` 和 `glamour.md`。
 - `docs/ai/CODE_STRUCTURE_RULES.md`：复杂业务拆分和防止单文件膨胀规则。
+- `docs/ai/WORKBENCH_STYLE_CONTRACT.md`：NSPlate、NSGlamour 等工房类复杂工具页的工作台样式、密度、状态和响应式契约。
 - `docs/ai/REVIEW_GUIDE.md`：项目评估指南。
 
 ## 计划路由总览
 
-| 路由 | 页面组件 | 当前状态 |
-|---------|---------|---------|
-| `#/` | `src/pages/home/HomePage.vue` | 已接入占位视觉首页 |
-| `#/ffxiv` | `src/pages/ffxiv/FfxivIndexPage.vue` | 已接入分类导航骨架 |
-| `#/ffxiv/plate` | `src/pages/plate/PlatePage.vue` | 已接入 Plate 迁移占位页和统一工具页外壳 |
-| `#/ffxiv/glamour` | `src/pages/glamour/GlamourPage.vue` | 已接入 NSGlamour 迁移占位页和统一工具页外壳 |
-| `#/about` | `src/pages/about/AboutPage.vue` | 已接入 About 占位页 |
-| `#/style-lab` | `src/pages/style-lab/StyleLabPage.vue` | 隐藏内部样式探索页，不写入导航 |
-| `#/oc` | `src/pages/oc/OcIndexPage.vue` | 未接入代码，规划文档已建立 |
-| `#/oc/:characterId` | `src/pages/oc/OcCharacterPage.vue` | 未接入代码，规划文档已建立 |
+| 路由                            | 页面组件                                     | 当前状态                                    |
+| ------------------------------- | -------------------------------------------- | ------------------------------------------- |
+| `#/`                            | `src/pages/home/HomePage.vue`                | 已接入占位视觉首页                          |
+| `#/ffxiv`                       | `src/pages/ffxiv/FfxivIndexPage.vue`         | 已接入分类导航骨架                          |
+| `#/ffxiv/plate`                 | `src/pages/plate/NSPlatePage.vue`            | 已接入 NSPlate 迁移占位页和统一工具页外壳   |
+| `#/ffxiv/glamour`               | `src/pages/glamour/NSGlamourPage.vue`        | 已接入 NSGlamour 迁移占位页和统一工具页外壳 |
+| `#/about`                       | `src/pages/about/AboutPage.vue`              | 已接入 About 占位页                         |
+| `#/style-lab`                   | `src/pages/style-lab/StyleLabPage.vue`       | 隐藏内部样式探索页，不写入导航              |
+| `#/silence`                     | `src/pages/silence/SilenceIndexPage.vue`     | 未接入代码，规划文档已建立                  |
+| `#/silence/angel`               | `src/pages/silence/SilenceGroupPage.vue`     | 未接入代码，规划文档已建立                  |
+| `#/silence/glitch`              | `src/pages/silence/SilenceGroupPage.vue`     | 未接入代码，规划文档已建立                  |
+| `#/silence/angel/:characterId`  | `src/pages/silence/SilenceCharacterPage.vue` | 未接入代码，规划文档已建立                  |
+| `#/silence/glitch/:characterId` | `src/pages/silence/SilenceCharacterPage.vue` | 未接入代码，规划文档已建立                  |
 
 > 注意：当前页面只是 V2 骨架和迁移入口，不代表旧项目功能已经完成迁移。
 
@@ -51,7 +56,8 @@
 - `#/` 首页使用首页专属右上导航，不显示 `AppTopNav`。
 - `#/ffxiv`、`#/ffxiv/glamour`、`#/ffxiv/plate`、`#/about` 显示轻量 `AppTopNav`。
 - `AppTopNav` 提供回首页入口。
-- `FF14工具` 是父级分类入口，在 `AppTopNav` 中用下拉菜单承载 `幻化工房`、`铭牌工房` 等子工具；不要把父级分类和子工具做成同一排并列项。
+- `狒狒14工房` 是父级分类入口，在 `AppTopNav` 中用下拉菜单承载 `幻化工房`、`铭牌工房` 等子工具；不要把父级分类和子工具做成同一排并列项。
+- `设置 | CONFIG` 与 `菜单 | MENU` 是顶栏同级入口；`菜单` 管站点导航，`设置` 管全局显示模式等站点设置。
 - `AppTopNav` 不作为大型全站 header。
 
 ## NSHome 首页（占位骨架已接入）
@@ -66,7 +72,7 @@
   - 为工具、博客、创作信息和未来分类保留扩展余地。
   - 使用 V2 公共 CSS 和公共组件，不复制旧静态站的零散样式。
   - 作为纯视觉首页，为 `#/ffxiv` 分类导航提供稳定入口。
-  - 首页粉蓝像素风、人物舞台、贴纸和浮动图标属于页面专属样式，不进入全站公共组件默认外观。
+  - 首页人物舞台、贴纸和浮动图标属于页面专属样式；全站基础控件统一使用像素风公共外观。
 - **模块文档**：`docs/ai/MODULES/home.md`。
 
 ## FFXIV 分类导航页（占位骨架已接入）
@@ -82,11 +88,11 @@
   - 承接首页 `FFXIV` 主入口。
   - 展示当前和未来 FFXIV 工具，不把工具列表塞进纯视觉首页。
   - 使用 V2 公共按钮、卡片、面板和导航样式。
-  - 作为模块/分类级页面，可以有 FFXIV 导航布局，但不继承首页强像素装饰。
+  - 作为模块/分类级页面，继承全站像素风基础控件，但不继承首页人物舞台和强装饰。
   - 只代表当前第一阶段 FFXIV 分类，不代表整站长期只服务 FFXIV。
 - **模块文档**：`docs/ai/MODULES/ffxiv.md`。
 
-## Plate 铭牌编辑器（迁移占位页已接入）
+## NSPlate 铭牌编辑器（迁移占位页已接入）
 
 - **计划路由**：`#/ffxiv/plate`
 - **来源项目路径**：旧 `NSPortable`
@@ -100,7 +106,7 @@
   - 页面交互拆到 `src/pages/plate/`。
   - 与 V2 公共按钮、面板、表单、工具栏样式对齐。
   - API 和素材请求通过 `/api/plate`、`/img`、`/img-preview` 接入。
-- **模块文档**：`docs/ai/MODULES/plate.md`。
+- **模块文档**：`docs/ai/MODULES/nsplate.md`。
 
 ## NSGlamour 幻化工具（迁移占位页已接入）
 
@@ -116,23 +122,24 @@
   - `/template` 和 `/equipinfo` 的核心交互拆到 `src/pages/glamour/`。
   - 保持装备、染剂、多语言和模板渲染规则与原项目兼容。
   - API 通过 `/api/glamour` 接入。
-- **模块文档**：`docs/ai/MODULES/glamour.md`。
+- **模块文档**：`docs/ai/MODULES/nsglamour.md`。
 
-## OC 原创角色档案（规划文档已建立）
+## Silence 角色档案（规划文档已建立）
 
-- **计划路由**：`#/oc`
-- **推荐详情路由**：`#/oc/:characterId`
-- **计划页面入口**：`src/pages/oc/OcIndexPage.vue`、`src/pages/oc/OcCharacterPage.vue`
+- **计划入口路由**：`#/silence`
+- **推荐分组路由**：`#/silence/angel`、`#/silence/glitch`
+- **推荐详情路由**：`#/silence/angel/:characterId`、`#/silence/glitch/:characterId`
+- **计划页面入口**：`src/pages/silence/SilenceIndexPage.vue`、`src/pages/silence/SilenceGroupPage.vue`、`src/pages/silence/SilenceCharacterPage.vue`
 - **页面类型**：创作信息分类 / 原创角色档案 / 角色图鉴
 - **当前状态**：仅建立规划文档，尚未接入代码、路由、站点配置或公开导航。
 - **迁移目标**：
   - 承接首页未来的创作信息入口。
-  - 展示原创角色索引、分组、标签和单角色档案。
+  - 展示 `不语·silence`、`幽灵·silence` 两组角色索引、标签和单角色档案。
   - 使用本地结构化数据作为第一阶段数据来源，不默认接后端。
   - 参考动漫官网角色介绍页的信息架构，但不复刻具体商业 IP 的美术、素材或文案。
   - 公开文案和角色设定必须由用户提供或确认；未确认内容实现时统一使用 `占位用，待编辑`。
-  - 样式作为 OC 模块或页面专属样式处理，不污染全站公共组件默认外观。
-- **模块文档**：`docs/ai/MODULES/oc.md`。
+  - 样式作为 Silence 模块或页面专属样式处理，不污染全站公共组件默认外观。
+- **模块文档**：`docs/ai/MODULES/silence.md`。
 
 ## 模块文档规则
 
@@ -154,10 +161,10 @@
 - **计划路由**：`#/style-lab`
 - **计划组件**：`src/pages/style-lab/StyleLabPage.vue`
 - **页面类型**：隐藏内部设计预览页
-- **当前状态**：用于比较候选皮肤，不是用户可见主题切换系统。
+- **当前状态**：用于比较像素风强度、工具工作台密度和单页特殊风格，不是用户可见主题切换系统。
 - **边界**：
   - 不写入首页、顶部导航或 `src/config/site.ts` 公开入口。
-  - 候选皮肤必须通过容器选择器或可选 class 隔离。
+  - 实验皮肤必须通过容器选择器或可选 class 隔离。
   - 不覆盖 `body`、`button`、`input`、`a` 等全局标签默认行为。
-  - 不影响 `NSGlamour`、`Plate` 等工具页迁移默认样式。
+  - 不影响 `NSGlamour`、`NSPlate` 等工具页迁移默认样式。
 - **模块文档**：`docs/ai/MODULES/style-lab.md`。
