@@ -38,8 +38,11 @@ docs/ai/MODULES/<module>.md
 2. 必要技术标识可以保留，例如 `NSGlamour`、`NSPlate`、旧 `NSPortable`、`FFXIV`、API path、端口、文件名。
 3. 如果只是为了让功能骨架先跑起来、但用户尚未提供正式文案，统一写 `占位用，待编辑`。
 4. AI 不要自行发挥写正式宣传语、功能介绍、卡片简介、空状态说明或 About 文案。
-5. 代码中如果需要复用占位文案，优先使用统一常量，例如 `src/config/site.ts` 中的 `placeholderCopy`，不要散落重复字符串。
+5. 代码中如果需要复用占位文案，优先使用统一文案 key，例如 `src/config/site.ts` 中的 `textKeys.placeholder`，不要散落重复字符串。
 6. 后续用户给出正式文案时，再替换对应占位文本。
+7. 所有用户可见固定文案、按钮文字、状态文字、aria-label、title、placeholder 和弹窗标题必须写成 `src/locales/` 文案 key；页面和组件中不直接硬编码展示文本。
+8. `src/config/site.ts` 只放路由、入口、API、项目稳定信息和文案 key，不放真实展示文案。组件渲染时通过 `useLocale().t(key)` 取当前语言文本。
+9. 旧项目迁移时，数据键、图层名、文件分类名、游戏术语等如果承担兼容字段，不能为了本地化直接改原始键；应在显示适配层增加本地化 label。
 
 ## 路由注册示例
 

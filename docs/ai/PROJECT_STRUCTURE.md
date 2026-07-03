@@ -30,7 +30,7 @@
 
 ## 当前迁移焦点
 
-当前下一步不是继续做 `Silence` 页面，而是回到整体 V2 迁移主线：先处理第一阶段两个 FFXIV 工具。
+当前主线仍是整体 V2 迁移：先处理第一阶段两个 FFXIV 工具。`Silence` 已完成入口转正和分组占位页接入，但角色数据、单角色详情和正式素材不进入当前迁移主线。
 
 | 工具        | 目标路由          | 当前状态                | 下一步                                               |
 | ----------- | ----------------- | ----------------------- | ---------------------------------------------------- |
@@ -43,7 +43,7 @@
 2. 同步补齐 `docs/api/nsplate.md`、`docs/api/nsglamour.md` 的真实字段和样本。
 3. 再选择一个工具进入第一段可见迁移。
 
-`Silence` 目前只保留规划文档，不进入本轮业务实现。
+`Silence` 目前只完成最小入口闭环，不进入本轮角色档案业务实现。
 
 ## 当前 src 目录职责
 
@@ -84,6 +84,7 @@ src/pages/
 ├── glamour/
 ├── home/
 ├── plate/
+├── silence/
 └── style-lab/
 ```
 
@@ -94,9 +95,10 @@ src/pages/
 | `glamour/`   | NSGlamour 迁移占位页已接入，真实业务未迁移。                         |
 | `plate/`     | 铭牌工房迁移占位页已接入，真实业务未迁移。                           |
 | `about/`     | About 占位页已接入。                                                 |
+| `silence/`   | Silence 双入口门厅页和 `angel` / `glitch` 分组占位页已接入。          |
 | `style-lab/` | 隐藏内部样式探索页，不写入公开导航。                                 |
 
-当前尚未创建 `src/pages/silence/`。`Silence` 角色档案仍处于规划文档阶段，详见 `docs/ai/MODULES/silence.md`。
+`Silence` 单角色详情页和 `src/data/silence/` 角色数据尚未创建，详见 `docs/ai/MODULES/silence.md`。
 
 ## 当前公开路由和规划路由
 
@@ -107,6 +109,9 @@ src/pages/
 #/ffxiv
 #/ffxiv/glamour
 #/ffxiv/plate
+#/silence
+#/silence/angel
+#/silence/glitch
 #/about
 #/style-lab
 ```
@@ -114,7 +119,7 @@ src/pages/
 说明：
 
 - `#/style-lab` 是隐藏内部样式探索页，不写入公开导航。
-- `#/silence`、`#/silence/angel`、`#/silence/glitch` 尚未接入代码，只存在于规划文档。
+- `#/silence`、`#/silence/angel`、`#/silence/glitch` 已接入代码；单角色详情路由尚未接入。
 - 不再规划公开 `#/oc` 路由；`OC` 只作为内部内容类型和讨论术语。
 
 ## 样式结构

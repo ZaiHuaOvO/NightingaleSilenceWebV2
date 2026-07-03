@@ -2,14 +2,15 @@
 
 ## 当前状态
 
-- 模块状态：仅规划文档，尚未接入代码、路由和公开导航。
+- 模块状态：`#/silence` 入口页和 `#/silence/angel`、`#/silence/glitch` 分组占位页已接入代码、路由和公开导航；单角色详情页和角色数据尚未接入。
 - 计划入口路由：`#/silence`。
 - 推荐分组路由：`#/silence/angel`、`#/silence/glitch`。
 - 推荐详情路由：`#/silence/angel/:characterId`、`#/silence/glitch/:characterId`。
-- 计划页面入口：`src/pages/silence/SilenceIndexPage.vue`、`src/pages/silence/SilenceGroupPage.vue`、`src/pages/silence/SilenceCharacterPage.vue`。
+- 已接入页面入口：`src/pages/silence/SilenceIndexPage.vue`、`src/pages/silence/SilenceGroupPage.vue`。
+- 计划单角色页面入口：`src/pages/silence/SilenceCharacterPage.vue`。
 - 模块类型：创作信息分类 / 原创角色档案 / 角色图鉴。
 - 当前不涉及后端 API。
-- 当前正式展示文案尚未确认；实现页面骨架时，未由用户提供的公开文案统一使用 `占位用，待编辑`。
+- 当前正式展示文案尚未确认；页面骨架中未由用户提供的公开文案统一使用 `占位用，待编辑`。
 
 ## 定位
 
@@ -54,6 +55,8 @@ Silence 模块第一层按角色所属叙事层分组，不按世界观分组。
 ### Silence 入口页和分组页
 
 `#/silence` 负责 `不语·silence` 与 `幽灵·silence` 两组总览，不承担单个角色的完整长档案。`#/silence/angel` 与 `#/silence/glitch` 负责组内角色列表和组内视觉气质。
+
+当前已接入的 `#/silence` 第一版采用“双入口门厅”结构，不直接展示八个角色，避免把 `angel` 与 `glitch` 两组风格硬拼在同一屏。`angel` 用抽象六人剪影暗示六个主 OC，`glitch` 用像素窗口和故障视觉暗示两个 meta 角色。
 
 建议结构：
 
@@ -219,7 +222,7 @@ Silence 模块不建议为每个角色单独创建一个页面组件，例如不
 
 ## 实施边界
 
-真正开始实现 `#/silence` 前，需要先进入计划阶段，至少确认：
+后续继续实现单角色详情页、角色数据或正式素材前，需要先进入计划阶段，至少确认：
 
 1. 角色数量和第一批角色名单。
 2. 是否需要单角色详情页，还是第一版只做分类首页和页内切换。

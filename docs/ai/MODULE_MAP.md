@@ -22,7 +22,7 @@
 - `src/lib/glamour/`
 - 旧项目真实业务页面和 Canvas 渲染迁移
 - UI 本地化文案加载和切换控件
-- `#/silence` 角色档案分类、`angel` / `glitch` 分组页和详情页
+- `#/silence/angel/:characterId`、`#/silence/glitch/:characterId` 单角色详情页
 
 当前已存在：
 
@@ -43,9 +43,9 @@
 | `#/ffxiv/glamour`               | `src/pages/glamour/NSGlamourPage.vue`        | 已接入 NSGlamour 迁移占位页和统一工具页外壳 |
 | `#/about`                       | `src/pages/about/AboutPage.vue`              | 已接入 About 占位页                         |
 | `#/style-lab`                   | `src/pages/style-lab/StyleLabPage.vue`       | 隐藏内部样式探索页，不写入导航              |
-| `#/silence`                     | `src/pages/silence/SilenceIndexPage.vue`     | 未接入代码，规划文档已建立                  |
-| `#/silence/angel`               | `src/pages/silence/SilenceGroupPage.vue`     | 未接入代码，规划文档已建立                  |
-| `#/silence/glitch`              | `src/pages/silence/SilenceGroupPage.vue`     | 未接入代码，规划文档已建立                  |
+| `#/silence`                     | `src/pages/silence/SilenceIndexPage.vue`     | 已接入双入口门厅页                          |
+| `#/silence/angel`               | `src/pages/silence/SilenceGroupPage.vue`     | 已接入分组占位页                            |
+| `#/silence/glitch`              | `src/pages/silence/SilenceGroupPage.vue`     | 已接入分组占位页                            |
 | `#/silence/angel/:characterId`  | `src/pages/silence/SilenceCharacterPage.vue` | 未接入代码，规划文档已建立                  |
 | `#/silence/glitch/:characterId` | `src/pages/silence/SilenceCharacterPage.vue` | 未接入代码，规划文档已建立                  |
 
@@ -124,17 +124,18 @@
   - API 通过 `/api/glamour` 接入。
 - **模块文档**：`docs/ai/MODULES/nsglamour.md`。
 
-## Silence 角色档案（规划文档已建立）
+## Silence 角色档案（入口和分组占位页已接入）
 
 - **计划入口路由**：`#/silence`
 - **推荐分组路由**：`#/silence/angel`、`#/silence/glitch`
 - **推荐详情路由**：`#/silence/angel/:characterId`、`#/silence/glitch/:characterId`
 - **计划页面入口**：`src/pages/silence/SilenceIndexPage.vue`、`src/pages/silence/SilenceGroupPage.vue`、`src/pages/silence/SilenceCharacterPage.vue`
 - **页面类型**：创作信息分类 / 原创角色档案 / 角色图鉴
-- **当前状态**：仅建立规划文档，尚未接入代码、路由、站点配置或公开导航。
+- **当前状态**：`#/silence` 双入口门厅、`#/silence/angel` 和 `#/silence/glitch` 分组占位页已接入代码、路由、站点配置和公开导航；单角色详情页、角色数据和正式素材尚未接入。
 - **迁移目标**：
   - 承接首页未来的创作信息入口。
   - 展示 `不语·silence`、`幽灵·silence` 两组角色索引、标签和单角色档案。
+  - `#/silence` 当前作为双入口门厅，不直接展示八个角色；`angel` 和 `glitch` 的完整视觉展开留给各自分组页。
   - 使用本地结构化数据作为第一阶段数据来源，不默认接后端。
   - 参考动漫官网角色介绍页的信息架构，但不复刻具体商业 IP 的美术、素材或文案。
   - 公开文案和角色设定必须由用户提供或确认；未确认内容实现时统一使用 `占位用，待编辑`。
