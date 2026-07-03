@@ -40,7 +40,7 @@
 | `#/ffxiv`                       | `src/pages/ffxiv/FfxivIndexPage.vue`         | 已接入分类导航骨架                          |
 | `#/ffxiv/plate`                 | `src/pages/plate/NSPlatePage.vue`            | 已接入 NSPlate 迁移页、基础素材选择和预览   |
 | `#/ffxiv/glamour`               | `src/pages/glamour/NSGlamourPage.vue`        | 已接入 NSGlamour 迁移占位页和统一工具页外壳 |
-| `#/ffxiv/armoire`               | `src/pages/armoire/NSArmoirePage.vue`        | 已接入 NSArmoire 第一阶段手动 snapshot 导入和基础统计 |
+| `#/ffxiv/armoire`               | `src/pages/armoire/NSArmoirePage.vue`        | 已接入 NSArmoire 第一阶段手动 snapshot 导入、基础统计和分析面板 |
 | `#/about`                       | `src/pages/about/AboutPage.vue`              | 已接入 About 占位页                         |
 | `#/style-lab`                   | `src/pages/style-lab/StyleLabPage.vue`       | 隐藏内部样式探索页，不写入导航              |
 | `#/silence`                     | `src/pages/silence/SilenceIndexPage.vue`     | 已接入左右分割海报式双入口页                |
@@ -131,13 +131,14 @@
 - **需求来源**：`docs/ARMOIRE_PLAN.md`
 - **页面入口**：`src/pages/armoire/NSArmoirePage.vue`
 - **数据契约**：`docs/api/nsarmoire.md`
-- **当前状态**：已接入站点配置、FFXIV 工具入口、hash 路由、手动 JSON snapshot 导入、Asvel dresser 简化数据兼容导入、基础条目/容器分布统计。
+- **当前状态**：已接入站点配置、FFXIV 工具入口、hash 路由、手动 JSON snapshot 导入、Asvel dresser 简化数据兼容导入、基础条目/容器分布统计、catalog/analysis 类型和分析面板；依赖正式 catalog 的结果会显示等待 catalog，不输出伪结果。
 - **当前后端/API**：第一阶段不接本地 helper，不新增 Vite proxy；`src/services/apiBoundaries.ts` 只让有 `apiBase` 和 `devPort` 的旧项目工具进入 API 边界列表。
 - **已确认字段口径**：
   - `投影台 / IsGlamourous`：判断这条 Item 记录本身能否作为普通物品放入投影台。
   - `武具投影 / Item{Glamour}`：普通武具投影能力或材料，不等同于投影台收纳。
   - `ItemUICategory=112` 与 `MirageStoreSetItem.csv`：套装幻影化容器；拥有容器不代表散件全收集。
   - `Cabinet.csv`：收藏柜可存放口径，不能用 `IsGlamourous` 代替。
+  - `Model{Main}` / 灰机 `主模型`、`Model{Sub}` / 灰机 `副模型`、`ItemUICategory` 与 `EquipSlotCategory`：第一版同模型口径，主副模型和分类/槽位都完全一致才归为同模型。
 - **迁移目标**：
   - 建立稳定 `NSArmoire snapshot` 数据契约，页面分析只依赖 snapshot，不理解本地 helper 内部结构。
   - 后续接入静态 armoire catalog 后，再实现收藏柜进度、套装缺件、同模型重复、染色风险和清理建议。

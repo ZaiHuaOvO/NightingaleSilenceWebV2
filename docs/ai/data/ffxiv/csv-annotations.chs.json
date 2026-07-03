@@ -128,14 +128,14 @@
           "rawKey": "47",
           "csvIndex": 48,
           "type": "int64",
-          "meaning": "主模型数据。NSGlamour 和同模型检测会用到。"
+          "meaning": "主模型数据。NSGlamour 会用到；NSArmoire 第一版同模型检测需要 Model{Main}、Model{Sub}、ItemUICategory、EquipSlotCategory 都完全一致。"
         },
         "49": {
           "field": "Model{Sub}",
           "rawKey": "48",
           "csvIndex": 49,
           "type": "int64",
-          "meaning": "副模型数据。武器/副手等场景会用到。"
+          "meaning": "副模型数据。武器/副手等场景会用到；NSArmoire 第一版同模型检测需要 Model{Main}、Model{Sub}、ItemUICategory、EquipSlotCategory 都完全一致。"
         },
         "91": {
           "field": "IsGlamourous",

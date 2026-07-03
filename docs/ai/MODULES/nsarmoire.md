@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-- 模块状态：已接入第一阶段页面入口、站点配置、路由、手动 snapshot 导入和基础容器分布统计；本地 helper、静态 catalog 和正式分析能力尚未接入。
+- 模块状态：已接入第一阶段页面入口、站点配置、路由、手动 snapshot 导入、基础容器分布统计、前端 catalog/analysis 类型和 snapshot 级染色风险分析；本地 helper、正式静态 catalog 和依赖 catalog 的正式推荐能力尚未接入。
 - 用户需求来源：`docs/ARMOIRE_PLAN.md`。
 - 目标路由：`#/ffxiv/armoire`。
 - 计划页面入口：`src/pages/armoire/NSArmoirePage.vue`。
@@ -102,6 +102,15 @@ interface AsvelDresserItem {
 3. 支持简化 Asvel dresser JSON 归一为 `container: 'glamourDresser'`。
 4. 实现 snapshot 基础校验、容器分布统计、条目数、不同物品数、总数量、染色条目数、投影台条目数和收藏柜条目数。
 5. 不接本地 helper，不读取游戏进程，不保存完整 snapshot 到 `localStorage`。
+
+当前已完成的第一阶段 B：
+
+1. 建立 `ArmoireCatalog v1` 前端类型。
+2. 建立收藏柜进度、套装状态、染色风险、同模型重复的纯函数分析入口。
+3. 在没有正式 catalog 时，收藏柜、套装和同模型分析返回 `missingCatalog`，页面显示等待 catalog，不输出伪结果。
+4. 染色风险可先基于 snapshot `dyes` 字段工作，双染色条目标记为更高风险。
+5. 页面新增分析面板，展示 catalog 待接入状态和染色风险条目。
+6. 确认同模型第一版口径：`Item.csv` 的 `Model{Main}` / 灰机 `主模型`、`Model{Sub}` / 灰机 `副模型`、`ItemUICategory` 和 `EquipSlotCategory` 都完全一致才归为同模型；这是并且关系。非装备、腰带、灵魂水晶和暂未纳入筛选的槽位不进入第一版同模分组。
 
 MVP 暂不做：
 
@@ -230,7 +239,7 @@ src/lib/armoire/
 | `glamourSetProgress` | 投影台套装投影化进度：已套装投影化个数 / 可套装投影化的个数 |
 | `setRecommendations` | 已有外观中可套装幻影化、接近成套、或已套装投影化但缺件的组合 |
 | `cabinetRecommendations` | 可放入收藏柜且风险较低的物品 |
-| `duplicateModelGroups` | 同模型或近似同模型重复装备 |
+| `duplicateModelGroups` | `Model{Main}`、`Model{Sub}`、`ItemUICategory`、`EquipSlotCategory` 都完全一致的重复装备 |
 | `dyeRiskItems` | 已染色、双染色或高价值染剂相关风险项 |
 | `missingItems` | 用户未拥有但属于收藏柜/套装/同模补全目标的物品 |
 
@@ -412,6 +421,8 @@ src/lib/armoire/*
 如果第一阶段只做手动导入和前端分析，可以暂不修改 `vite.config.ts` 和 `apiBoundaries.ts` 的 helper 代理，只在后续本地助手接入阶段补。
 
 当前第一阶段 A 没有修改 `vite.config.ts`，也没有为 `NSArmoire` 创建 helper API 边界；`apiBoundaries.ts` 只调整为允许没有 API 的工具入口存在。
+
+当前第一阶段 B 仍然没有修改 `vite.config.ts`，也没有接入 helper API；新增能力只在浏览器内处理用户导入的 snapshot。
 
 ## 实施步骤
 
