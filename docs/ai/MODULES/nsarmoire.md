@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-- 模块状态：已接入第一阶段页面入口、站点配置、路由、手动 snapshot 导入、基础容器分布统计、前端 catalog/analysis 类型和 snapshot 级染色风险分析；本地 helper、正式静态 catalog 和依赖 catalog 的正式推荐能力尚未接入。
+- 模块状态：已接入第一阶段页面入口、站点配置、路由、手动 snapshot 导入、内置示例 snapshot、基础容器分布统计、前端 catalog/analysis 类型、snapshot 级染色风险分析、第一版静态 `armoire_catalog` 和可读处理提示；本地 helper 尚未接入。
 - 用户需求来源：`docs/ARMOIRE_PLAN.md`。
 - 目标路由：`#/ffxiv/armoire`。
 - 计划页面入口：`src/pages/armoire/NSArmoirePage.vue`。
@@ -101,7 +101,15 @@ interface AsvelDresserItem {
 2. 支持手动导入 `NSArmoire snapshot` JSON。
 3. 支持简化 Asvel dresser JSON 归一为 `container: 'glamourDresser'`。
 4. 实现 snapshot 基础校验、容器分布统计、条目数、不同物品数、总数量、染色条目数、投影台条目数和收藏柜条目数。
-5. 不接本地 helper，不读取游戏进程，不保存完整 snapshot 到 `localStorage`。
+5. 提供内置示例 snapshot，用于没有真实游戏导出时快速查看页面分析状态。
+6. 不接本地 helper，不读取游戏进程，不保存完整 snapshot 到 `localStorage`。
+
+内置示例 snapshot 说明：
+
+- 文件：`src/lib/armoire/exampleSnapshot.ts`。
+- 只用于前端演示和人工验收，不代表真实角色仓库数据。
+- 覆盖场景包括：柯塔纳同模型、梦幻套装缺散件、收藏柜已有/可转入、染色风险和基础容器分布。
+- 后续接入真实 helper 后，示例入口仍可作为无数据状态下的体验预览和回归样本。
 
 当前已完成的第一阶段 B：
 
@@ -109,8 +117,26 @@ interface AsvelDresserItem {
 2. 建立收藏柜进度、套装状态、染色风险、同模型重复的纯函数分析入口。
 3. 在没有正式 catalog 时，收藏柜、套装和同模型分析返回 `missingCatalog`，页面显示等待 catalog，不输出伪结果。
 4. 染色风险可先基于 snapshot `dyes` 字段工作，双染色条目标记为更高风险。
-5. 页面新增分析面板，展示 catalog 待接入状态和染色风险条目。
+5. 页面新增分析面板，把分析数据转换成用户可读的处理提示和具体物品清单；数字只作为辅助，不作为主要信息。
 6. 确认同模型第一版口径：`Item.csv` 的 `Model{Main}` / 灰机 `主模型`、`Model{Sub}` / 灰机 `副模型`、`ItemUICategory` 和 `EquipSlotCategory` 都完全一致才归为同模型；这是并且关系。非装备、腰带、灵魂水晶和暂未纳入筛选的槽位不进入第一版同模分组。
+
+分析 UI 规则：
+
+- 概览区不能只展示数字，应先说明“导入了多少记录、分布在几个容器、投影台/收藏柜各有多少、是否存在染色风险”。
+- 分析区优先展示“处理提示”，例如可转入收藏柜、残缺套装、同模型重复和染色确认。
+- 每条提示应尽量列出具体物品名；没有 catalog 名称时才退回 `物品 ID`。
+- 清单型提示应尽量同时显示物品当前所在容器或来源位置，例如背包、兵装库、投影台、收藏柜或雇员名，避免用户只看到物品名却不知道去哪处理。
+- 如果 catalog 中存在 `iconId`，清单型提示可以显示游戏物品图标；第一版可用 XIVAPI v2 asset endpoint 按 `ui/icon/<folder>/<icon>.tex` 转 PNG 预览，后续本地 helper 接入后可改为 helper 或站点自托管图标源。
+- “重复物品检查”与“同模型可精简”分开：前者只判断同一个 `itemId` 在 snapshot 中出现多条记录；后者判断不同物品是否使用同一套模型。
+- 统计数字保留，但作为提示的辅助信息，不替代可读结论。
+
+当前已完成的第一阶段 C：
+
+1. 新增 `scripts/build-armoire-catalog.mjs`，从 datamining CSV 构建 `ArmoireCatalog v1`。
+2. 默认从 `InfSein/ffxiv-datamining-mixed` 的 `chs` 目录读取 `Item.csv`、`Cabinet.csv`、`MirageStoreSetItem.csv`、`Stain.csv`，同时保留本地 `--source-dir` 作为 fallback。
+3. 输出轻量静态数据到 `public/data/armoire-catalog.json`，不把原始 CSV 或完整多语言映射放入前端。
+4. 页面启动后加载该静态 catalog；加载成功时收藏柜、套装和同模型分析进入正式口径，加载失败时继续显示 catalog pending。
+5. 本阶段仍不接本地 helper，不读取游戏进程，不新增 Vite proxy。
 
 MVP 暂不做：
 
@@ -166,6 +192,20 @@ interface ArmoireCatalog {
 
 两条路线可以并存：V2 静态包用于无需 helper 的基本分析，helper 静态数据用于和用户客户端版本严格对齐。
 
+第一版 V2 静态 catalog 生成规则：
+
+- 生成脚本：`scripts/build-armoire-catalog.mjs`。
+- 默认来源：`https://raw.githubusercontent.com/InfSein/ffxiv-datamining-mixed/master/chs/*.csv`。
+- 可选本地来源：`node scripts/build-armoire-catalog.mjs --source-dir <datamining chs dir>`。
+- 默认输出：`public/data/armoire-catalog.json`。
+- catalog 只保留分析需要的轻量字段：
+  - `Item.csv`：`#`、`Name`、`Icon`、`ItemUICategory`、`EquipSlotCategory`、`DyeCount`、`Model{Main}`、`Model{Sub}`、`IsGlamourous`。
+  - `Cabinet.csv`：收藏柜可收纳 item id。
+  - `MirageStoreSetItem.csv`：套装容器 item id 与 `Item[0]` 到 `Item[8]` 的散件关系。
+  - `Stain.csv`：后续用于染剂名称、颜色和贵重染剂判断；第一版可先为 catalog 预留，不强制接 UI。
+- 同模型分组由 catalog item 的 `Model{Main}`、`Model{Sub}`、`ItemUICategory`、`EquipSlotCategory` 构建，保持第一版严格口径。
+- 生成脚本必须输出 summary，至少包含 item、cabinet、set、identical group 数量和来源信息，便于后续更新 CSV 时检查异常。
+
 ### 用户拥有状态
 
 本模块核心输入应设计为 snapshot，而不是让页面直接理解游戏内存结构。
@@ -212,6 +252,8 @@ interface ArmoireSnapshot {
 2. helper 读取到的所有游戏状态先归一成 snapshot。
 3. 用户仓库数据默认只在本机浏览器和本地 helper 间流动，不上传到公开服务器。
 4. snapshot 版本必须显式写入，后续数据结构升级可兼容旧导入文件。
+5. `hq`、`quantity`、`dyes`、`spiritbond` 属于用户拥有的物品实例状态，不来自静态 CSV。当前第一阶段只正式使用 `dyes` 做染色风险；后续 helper / 插件抓数据阶段再按真实可读字段扩展耐久、魔晶石、投影覆盖、制造者签名等状态。
+6. 静态 CSV 只能提供物品能力和目录信息，例如 `Item.csv / DyeCount` 表示可染色槽数、`Stain.csv` 表示染剂名和颜色；不能用来判断用户某一件装备当前是否已染色或当前染剂。
 
 ## 分析能力拆分
 
@@ -239,6 +281,7 @@ src/lib/armoire/
 | `glamourSetProgress` | 投影台套装投影化进度：已套装投影化个数 / 可套装投影化的个数 |
 | `setRecommendations` | 已有外观中可套装幻影化、接近成套、或已套装投影化但缺件的组合 |
 | `cabinetRecommendations` | 可放入收藏柜且风险较低的物品 |
+| `duplicateItems` | 同一个 `itemId` 在 snapshot 中出现多条记录的精确重复物品 |
 | `duplicateModelGroups` | `Model{Main}`、`Model{Sub}`、`ItemUICategory`、`EquipSlotCategory` 都完全一致的重复装备 |
 | `dyeRiskItems` | 已染色、双染色或高价值染剂相关风险项 |
 | `missingItems` | 用户未拥有但属于收藏柜/套装/同模补全目标的物品 |
@@ -450,6 +493,15 @@ src/lib/armoire/*
 3. 用 Asvel 兼容 JSON 样本做回归输入。
 4. 页面展示 overview、分布、建议、风险、缺失项。
 5. 增加筛选和排序，但不引入新表格库。
+
+### 阶段 2.5：静态 catalog 接入
+
+1. 新增 `scripts/build-armoire-catalog.mjs`，从关键 CSV 生成 `ArmoireCatalog v1`。
+2. 新增 npm script `build:armoire-catalog`，用于刷新 `public/data/armoire-catalog.json`。
+3. 前端新增 catalog 读取入口，默认请求 `/data/armoire-catalog.json`。
+4. `NSArmoireWorkspace.vue` 将加载到的 catalog 传给 `analyzeArmoireSnapshot`。
+5. catalog 加载失败时继续保守显示 `missingCatalog`，不输出伪进度。
+6. 验证生成 summary、类型检查和 Vite build。
 
 ### 阶段 3：本地助手最小接入
 
