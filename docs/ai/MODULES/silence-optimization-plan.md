@@ -22,7 +22,7 @@
 |------|------|------|
 | `src/pages/silence/components/SilenceGatePoster.vue` | 约 406 | Silence 入口页标题浮层、左右分割海报、六人预览和 glitch 占位 |
 | `src/pages/silence/components/SilenceCharacterStage.vue` | 约 304 | 单角色详情页首屏主视觉、基础资料摘要和页内锚点入口 |
-| `src/pages/silence/components/SilenceGroupVisual.vue` | 约 299 | `angel` / `glitch` 分组立绘 / 占位舞台组件 |
+| `src/pages/silence/components/SilenceGroupVisual.vue` | 约 299 | `angel` / `glitch` 分组立绘 / 窗口舞台组件 |
 | `src/pages/silence/SilenceGroupPage.vue` | 约 205 | 分组页状态、路由打开逻辑和页面壳 |
 | `src/pages/silence/components/SilenceCharacterDetails.vue` | 约 188 | 单角色详情页下滑资料区块组合 |
 | `src/pages/silence/SilenceCharacterPage.vue` | 约 165 | 单角色详情页路由取数、关系适配和页面组装 |
@@ -81,7 +81,7 @@
 
 2. **`SilenceGroupVisual.vue` 同时承担 `angel` 和 `glitch` 两种视觉**
 
-   当前舞台组件内用 `groupId` 分支渲染六人立绘舞台和 glitch 占位窗口。现在规模还可控；如果 glitch 组后续接入正式角色、窗口互动或特殊动画，应继续拆成 `SilenceAngelStage` / `SilenceGlitchStage`，避免一个舞台组件继续变成分支集合。
+   当前舞台组件内用 `groupId` 分支渲染六人立绘舞台和 glitch 双人窗口。现在规模还可控；如果 glitch 组后续接入正式角色、窗口互动或特殊动画，应继续拆成 `SilenceAngelStage` / `SilenceGlitchStage`，避免一个舞台组件继续变成分支集合。
 
 3. **测试占位内容已从角色基础种子中拆出**
 
@@ -218,7 +218,7 @@ images: {
 
 - 新增角色主要改数据，不需要改页面模板。
 - 页面不会渲染 `private` 或未确认公开的字段。
-- 未命名 glitch 角色仍不创建正式页面。
+- `glitch` 两个角色已命名为 `ヨイン / Yoin` 和 `宵音 / よいね / Yoine`，但当前仍不创建单人详情页，先作为 `#/silence/glitch` 双人页维护。
 
 ### 阶段 3：正式图片资产流水线
 

@@ -20,7 +20,7 @@
 
 - `src/lib/glamour/`
 - 旧项目真实业务页面和 Canvas 渲染迁移
-- `#/silence/glitch/:characterId` 单角色详情页
+- `#/silence/glitch/:characterId` 预留单角色详情页，当前 `glitch` 组先使用双人页
 
 当前已存在：
 
@@ -45,9 +45,9 @@
 | `#/style-lab`                   | `src/pages/style-lab/StyleLabPage.vue`       | 隐藏内部样式探索页，不写入导航              |
 | `#/silence`                     | `src/pages/silence/SilenceIndexPage.vue`     | 已接入左右分割海报式双入口页                |
 | `#/silence/angel`               | `src/pages/silence/SilenceGroupPage.vue`     | 已接入全屏分组舞台占位页                    |
-| `#/silence/glitch`              | `src/pages/silence/SilenceGroupPage.vue`     | 已接入全屏分组舞台占位页                    |
+| `#/silence/glitch`              | `src/pages/silence/SilenceGroupPage.vue`     | 已接入 Yoin & Yoine 双人页                  |
 | `#/silence/angel/:characterId`  | `src/pages/silence/SilenceCharacterPage.vue` | 已接入动态路由和六个多区块测试角色数据骨架  |
-| `#/silence/glitch/:characterId` | `src/pages/silence/SilenceCharacterPage.vue` | 未接入代码，规划文档已建立                  |
+| `#/silence/glitch/:characterId` | `src/pages/silence/SilenceCharacterPage.vue` | 预留路由形态，当前不启用单人详情页          |
 
 > 注意：当前页面只是 V2 骨架和迁移入口，不代表旧项目功能已经完成迁移。
 
@@ -149,13 +149,13 @@
 
 - **计划入口路由**：`#/silence`
 - **推荐分组路由**：`#/silence/angel`、`#/silence/glitch`
-- **推荐详情路由**：`#/silence/angel/:characterId`、`#/silence/glitch/:characterId`
+- **推荐详情路由**：`#/silence/angel/:characterId`；`#/silence/glitch/:characterId` 作为未来预留
 - **计划页面入口**：`src/pages/silence/SilenceIndexPage.vue`、`src/pages/silence/SilenceGroupPage.vue`、`src/pages/silence/SilenceCharacterPage.vue`
 - **页面类型**：创作信息分类 / 原创角色档案 / 角色图鉴
-- **当前状态**：`#/silence` 左右分割海报式双入口、`#/silence/angel` 和 `#/silence/glitch` 全屏分组舞台占位页已接入代码、路由、站点配置和公开导航；`angel` 六个角色的动态详情页、多区块测试数据骨架和详情页私有组件已接入，正式角色资料和正式素材尚未接入。
+- **当前状态**：`#/silence` 左右分割海报式双入口、`#/silence/angel` 全屏分组舞台和 `#/silence/glitch` 双人页已接入代码、路由、站点配置和公开导航；`angel` 六个角色的动态详情页、多区块测试数据骨架和详情页私有组件已接入，`glitch` 两个 meta 角色已确认命名为 `ヨイン / Yoin` 和 `宵音 / よいね / Yoine`，但暂不拆单人详情页；正式角色资料和正式素材尚未接入。
 - **迁移目标**：
   - 承接首页未来的创作信息入口。
-  - 展示 `不语·silence`、`幽灵·silence` 两组角色索引、标签和单角色档案。
+  - 展示 `不语·silence`、`幽灵·silence` 两组角色入口；`angel` 组进入单角色档案，`glitch` 组当前作为双人页展示。
   - `#/silence` 当前作为左右分割海报式双入口，不直接展示八个角色完整档案；`angel` 和 `glitch` 的完整视觉展开留给各自分组页。
   - 使用本地结构化数据作为第一阶段数据来源，不默认接后端。
   - 参考动漫官网角色介绍页的信息架构，但不复刻具体商业 IP 的美术、素材或文案。
