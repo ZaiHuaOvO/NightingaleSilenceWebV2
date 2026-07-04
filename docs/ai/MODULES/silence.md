@@ -2,10 +2,10 @@
 
 ## 当前状态
 
-- 模块状态：`#/silence` 左右分割海报式入口页、`#/silence/angel`、`#/silence/glitch` 全屏分组舞台占位页，以及 `angel` 六个角色的详情页动态路由、多区块测试数据骨架和详情页私有组件已接入；当前导航方向已改为横向翻页蒙版 + 点击立绘跳页；Salvance 首版正式资料已接入本地数据层并可在详情页渲染，其他正式角色资料和正式素材尚未接入。
+- 模块状态：`#/silence` 左右分割海报式入口页、`#/silence/angel` 全屏分组舞台、`#/silence/glitch` 幽灵双人页，以及 `angel` 六个角色的详情页动态路由、多区块测试数据骨架和详情页私有组件已接入；当前导航方向已改为横向翻页蒙版 + 点击立绘跳页；Salvance 首版正式资料已接入本地数据层并可在详情页渲染，`glitch` 两个 meta 角色已确认命名为 `ヨイン / Yoin` 和 `宵音 / よいね / Yoine`，但当前不拆单人详情页；其他正式角色资料和正式素材尚未接入。
 - 计划入口路由：`#/silence`。
 - 推荐分组路由：`#/silence/angel`、`#/silence/glitch`。
-- 推荐详情路由：`#/silence/angel/:characterId`、`#/silence/glitch/:characterId`。
+- 推荐详情路由：`#/silence/angel/:characterId`；`#/silence/glitch/:characterId` 作为未来预留，当前 `glitch` 组先共用 `#/silence/glitch` 双人页。
 - 已接入页面入口：`src/pages/silence/SilenceIndexPage.vue`、`src/pages/silence/SilenceGroupPage.vue`。
 - 单角色页面入口：`src/pages/silence/SilenceCharacterPage.vue`。
 - 当前本地开发环境下，入口海报、`angel` 分组舞台和单角色详情页都会读取 `characters.ts` 中的 dev-only 立绘路径；生产环境或缺图时回退为占位视觉。
@@ -60,7 +60,7 @@ Silence 模块第一层按角色所属叙事层分组，不按世界观分组。
 #/silence/angel     不语·silence，六个主 OC
 #/silence/glitch    幽灵·silence，两个 meta 角色
 #/silence/angel/:characterId   单个主 OC 档案
-#/silence/glitch/:characterId  单个幽灵角色档案
+#/silence/glitch/:characterId  预留的单个幽灵角色档案，当前不启用
 #/about             关于页面
 ```
 
@@ -71,13 +71,13 @@ Silence 模块当前采用线性横向翻页结构，而不是常规“返回 / 
 当前从左到右的顺序为：
 
 ```text
-goelia → glynne → chihaya → ney → nightingale → salvance → angel页 → silence页 → glitch页
+goelia → glynne → chihaya → ney → nightingale → salvance → angel页 → silence页 → glitch页（Yoin & Yoine 双人页）
 ```
 
 对应反向阅读时就是：
 
 ```text
-goelia ← glynne ← chihaya ← ney ← nightingale ← salvance ← angel页 ← silence页 → glitch页
+goelia ← glynne ← chihaya ← ney ← nightingale ← salvance ← angel页 ← silence页 → glitch页（Yoin & Yoine 双人页）
 ```
 
 实现规则：
@@ -85,7 +85,7 @@ goelia ← glynne ← chihaya ← ney ← nightingale ← salvance ← angel页 
 - `#/silence` 保持全屏左右分割海报，但左右两块不再作为普通卡片链接；用户通过左/右边缘渐变蒙版进入 `#/silence/angel` 或 `#/silence/glitch`。
 - `#/silence/angel` 的六人立绘是主要可点击目标；点击某个立绘直接进入对应 `#/silence/angel/:characterId`。
 - `#/silence/angel/:characterId` 首屏保留角色主视觉和基础档案入口，继续向下滚动查看详情区；左右边缘蒙版用于切换相邻角色或回到 `angel` 分组页。
-- 当前已经确认的 `angel` 角色只有 `goelia`、`glynne`、`chihaya`、`ney`、`nightingale`、`salvance`。未命名的 `glitch` 角色暂时不创建正式详情页，只允许保留占位视觉结构。
+- 当前已经确认的 `angel` 角色只有 `goelia`、`glynne`、`chihaya`、`ney`、`nightingale`、`salvance`。`glitch` 角色已确认命名为 `ヨイン / Yoin` 和 `宵音 / よいね / Yoine`，但两者当前作为同一组屏幕幽灵 / 界面异常呈现，暂时不创建单人详情页。
 - Silence 入口、分组页和角色详情页都不再放置可见的 `返回` / `进入` 按钮；必要的跳转只通过边缘翻页蒙版、角色立绘、详情内容内部链接或浏览器历史完成。
 
 ## 已确认角色形态规则
@@ -145,7 +145,7 @@ SilenceGroupPage
 
 首页第一屏应直接出现角色图像或明确角色视觉信号，不要做成纯文字目录。若第一阶段还没有正式角色图，页面实现时只能使用占位状态，不能由 AI 自行编写正式角色介绍。
 
-`#/silence/angel` 和 `#/silence/glitch` 进入后也应采用全屏或近全屏角色舞台，不做成普通居中内容框、卡片网格或资料列表页。分组页的核心交互对象是角色立绘本身：用户通过 hover、focus、tap 或方向键选择角色；被选中的角色应前移、变亮、放大或获得更高层级，其他角色退到后景、降低亮度或轻微错位。点击或键盘确认当前角色后，再进入 `#/silence/angel/:characterId` 或 `#/silence/glitch/:characterId` 的完整档案页。未命名的 `glitch` 占位目标不会跳转到正式角色页。
+`#/silence/angel` 和 `#/silence/glitch` 进入后也应采用全屏或近全屏角色舞台，不做成普通居中内容框、卡片网格或资料列表页。分组页的核心交互对象是角色立绘或窗口化角色目标本身：用户通过 hover、focus、tap 或方向键选择角色；被选中的角色应前移、变亮、放大或获得更高层级，其他角色退到后景、降低亮度或轻微错位。`angel` 组点击或键盘确认当前角色后进入 `#/silence/angel/:characterId` 的完整档案页；`glitch` 组当前只在 `#/silence/glitch` 内切换 `Yoin / Yoine` 焦点，不跳转到单人详情页。
 
 分组页交互约定：
 
@@ -184,17 +184,17 @@ SilenceAngelGroupView
 ```text
 SilenceGlitchGroupView
 ├── 全屏故障 / 像素 / 窗口化舞台
-├── 两个 meta 角色立绘或窗口化形象同屏出现
+├── `ヨイン / Yoin` 与 `宵音 / よいね / Yoine` 两个 meta 角色立绘或窗口化形象同屏出现
 ├── 角色可作为窗口、幽灵投影、像素层或界面残影与页面互动
 ├── 选中角色时，当前窗口稳定、变亮或前置，另一个角色变成残影或后台窗口
-└── 未命名角色只保留占位目标；确认命名后再建立 `#/silence/glitch/:characterId`
+└── 当前保持双人页结构；只有当其中某个角色积累出足够独立资料时，再考虑建立 `#/silence/glitch/:characterId`
 ```
 
 `glitch` 组可以使用更强的像素窗口、扫描线、错位、闪烁和界面残影，但交互仍需稳定可读：不能因为故障效果导致标题、当前选中角色或边缘翻页引导难以辨认。
 
 ### 单角色档案页
 
-`#/silence/angel/:characterId` 与 `#/silence/glitch/:characterId` 负责完整角色资料。
+`#/silence/angel/:characterId` 负责完整主 OC 角色资料。`#/silence/glitch/:characterId` 当前只是预留路由；`glitch` 组资料先集中在 `#/silence/glitch` 双人页。
 
 建议结构：
 
@@ -219,6 +219,7 @@ SilenceCharacterPage
 ```text
 src/data/silence/
 ├── characterSeeds.ts          # 角色基础种子和 dev-only 本地预览立绘路径
+├── glitchDuo.ts               # `glitch` 双人页名字、焦点和共同概念
 ├── characterProfiles.ts       # 用户确认资料的结构化角色档案，当前先接 Salvance
 ├── characterForms.ts          # 角色形态数据，当前先接 Salvance 的 sorence
 ├── draftCharacterContent.ts   # 测试占位资料骨架，正式文案接入前使用
@@ -327,6 +328,7 @@ src/pages/silence/
     ├── SilenceCharacterDetails.vue
     ├── SilenceFormOutfitPanel.vue
     ├── SilenceGroupVisual.vue
+    ├── SilenceGlitchDuoPanel.vue
     ├── SilenceTurnHint.vue
     ├── SilenceProfilePanel.vue
     ├── SilenceGallery.vue
@@ -341,7 +343,8 @@ src/pages/silence/
 - `SilenceCharacterStage.vue`：单角色详情页首屏主视觉、基础资料摘要、页内详情锚点入口和左右翻页蒙版。
 - `SilenceCharacterDetails.vue`：单角色详情页下滑后的基础档案、世界线、图像资料、关系网、笔记和剧透区组合。
 - `SilenceFormOutfitPanel.vue`：角色详情页内部“形态”和“衣装设定”的展示区块；形态通过 `?form=` 深链接控制，衣装区默认独立浏览所有非 private 衣装，可按需要单独开启 `formIds` 过滤。
-- `SilenceGroupVisual.vue`：分组页立绘 / 占位舞台组件，负责 `angel` 六人舞台和 `glitch` 两个占位目标的视觉与键盘事件。
+- `SilenceGroupVisual.vue`：分组页立绘 / 窗口舞台组件，负责 `angel` 六人舞台和 `glitch` 两个窗口化角色目标的视觉与键盘事件。
+- `SilenceGlitchDuoPanel.vue`：`#/silence/glitch` 双人页的小控制台，显示当前聚焦的 `Yoin / Yoine` 和共同屏幕夹层设定；不承担完整角色档案。
 - `SilenceTurnHint.vue`：页面左右边缘渐变翻页蒙版。
 - `SilenceProfilePanel.vue`：基础档案和代表色块。
 - `SilenceGallery.vue`：图像资料槽位。
@@ -355,6 +358,7 @@ src/pages/silence/
 Silence 模块不建议为每个角色单独创建一个页面组件，例如不要做成 `SalvancePage.vue`、`AnotherCharacterPage.vue` 这种一人一个页面。推荐结构是“一个详情页模板 + 一份角色数据”：
 
 - `src/data/silence/characterSeeds.ts`：维护角色基础种子。新增 `angel` 角色、调整角色 ID、名字、代表色和 dev-only 本地预览立绘路径，优先改这里。
+- `src/data/silence/glitchDuo.ts`：维护 `glitch` 双人页已确认名字、窗口焦点数据和共同概念。当前不要把 `Yoin / Yoine` 拆入 `characters.ts` 的单角色档案列表。
 - `src/data/silence/characterProfiles.ts`：维护用户已提供并准备用于公开渲染的正式角色档案。修改这里会影响对应角色详情页的正式资料区块。
 - `src/data/silence/characterForms.ts`：维护角色形态数据。修改这里会影响角色页详情区的形态切换；首屏不读取这里替换角色身份。
 - `src/data/silence/draftCharacterContent.ts`：维护测试占位资料骨架。正式角色资料未接入前，基础档案、世界线、图像槽位、关系、笔记和剧透区占位从这里生成。
@@ -362,9 +366,9 @@ Silence 模块不建议为每个角色单独创建一个页面组件，例如不
 - `src/data/silence/navigation.ts`：维护 Silence 横向翻页顺序和左右邻居查询。
 - `src/pages/silence/SilenceIndexPage.vue`：维护 `#/silence` 入口页背景外壳。
 - `src/pages/silence/components/SilenceGatePoster.vue`：维护 `#/silence` 入口页的左右分割海报、标题浮层、预览角色和翻页入口。修改这里会影响两组总览，但不直接改变单角色详情页模板。
-- `src/pages/silence/SilenceGroupPage.vue`：维护 `#/silence/angel` 与 `#/silence/glitch` 的组内页面状态和路由打开逻辑。
+- `src/pages/silence/SilenceGroupPage.vue`：维护 `#/silence/angel` 与 `#/silence/glitch` 的组内页面状态；`angel` 组可打开角色详情页，`glitch` 组当前只切换双人页焦点。
 - `src/pages/silence/components/SilenceGroupVisual.vue`：维护分组页里的立绘 / 占位舞台。修改这里会影响两个分组页的角色目标外观和交互。
-- `src/pages/silence/SilenceCharacterPage.vue`：维护 `#/silence/angel/:characterId` 与 `#/silence/glitch/:characterId` 的路由取数和页面组装。`#/silence/angel/salvance` 和其他角色详情页都走这个组件。
+- `src/pages/silence/SilenceCharacterPage.vue`：维护 `#/silence/angel/:characterId` 的路由取数和页面组装。`#/silence/glitch/:characterId` 虽已作为未来路由形态保留，但当前没有 `glitch` 单角色数据，访问时应保持缺失态。
 - `src/pages/silence/components/SilenceCharacterStage.vue`：维护单角色详情页首屏。修改这里会影响所有角色详情页的首屏主视觉、基础资料摘要和页内锚点入口。
 - `src/pages/silence/components/SilenceCharacterDetails.vue`：维护单角色详情页下滑详情区。修改这里会影响所有角色详情页的资料区块顺序和外观。
 - `src/pages/silence/components/SilenceProfilePanel.vue`、`SilenceGallery.vue`、`SilenceRelationshipList.vue`、`SilenceSpoilerBlock.vue`：维护详情页内部可复用区块。修改其中一个组件，会影响所有使用该区块的角色详情页。
@@ -424,7 +428,7 @@ Silence 模块不建议为每个角色单独创建一个页面组件，例如不
 - `npm run build`
 - 浏览器访问 `http://localhost:5173/#/silence`
 - 浏览器访问 `http://localhost:5173/#/silence/angel` 和 `http://localhost:5173/#/silence/glitch`
-- 若实现详情页，访问 `http://localhost:5173/#/silence/angel/<characterId>` 和 `http://localhost:5173/#/silence/glitch/<characterId>`
+- 若实现 `angel` 详情页，访问 `http://localhost:5173/#/silence/angel/<characterId>`；`glitch` 当前验证 `http://localhost:5173/#/silence/glitch` 双人页，不验证单人详情页。
 - 560px / 900px / 1120px+ 宽度下角色卡片和详情页布局稳定。
 - 角色立绘目标可键盘聚焦，已存在详情页的角色可回车进入。
 - 剧透区默认状态符合预期，不在首屏意外暴露。
