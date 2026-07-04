@@ -129,6 +129,8 @@ interface AsvelDresserItem {
 - 如果 catalog 中存在 `iconId`，清单型提示可以显示游戏物品图标；第一版可用 XIVAPI v2 asset endpoint 按 `ui/icon/<folder>/<icon>.tex` 转 PNG 预览，后续本地 helper 接入后可改为 helper 或站点自托管图标源。
 - “重复物品检查”与“同模型可精简”分开：前者只判断同一个 `itemId` 在 snapshot 中出现多条记录；后者判断不同物品是否使用同一套模型。
 - 统计数字保留，但作为提示的辅助信息，不替代可读结论。
+- 清单型提示默认预览前 4 条；当完整清单超过 4 条时提供展开/收起控制，避免真实数据导入后用户只能看到摘要。
+- `NSArmoireInsightPanel.vue` 只负责分析面板组合；卡片外壳在 `NSArmoireActionCard.vue`，可读物品清单在 `NSArmoireReadableItemList.vue`，分析结果到 UI 的 view model 在 `useArmoireInsightViewModels.ts`，显示格式化工具在 `utils/insightDisplay.ts`。
 
 当前已完成的第一阶段 C：
 
