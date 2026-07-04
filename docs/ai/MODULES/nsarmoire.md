@@ -611,7 +611,7 @@ tools/nsarmoire-helper/*
 6. helper 支持 `/open-v2`，打开启动参数中配置的 V2 `#/ffxiv/armoire` 页面；接口不接受请求传入的任意 URL。
 7. 雇员读取参考 `Critical-Impact/InventoryTools` 的缓存口径：当前活动雇员的 `10000-10006` 内部 7 块会重排为游戏 UI 的 5 页，每页 35 格，并按雇员 ID 缓存。
 8. 收藏柜读取参考 `Seventhxiv/Collections` 的 `UIState.Cabinet` 口径：helper 读取 `UnlockedItems` bitset，并用 catalog `cabinetEntries` 映射到 itemId。
-9. helper 提供 `/catalog`，返回当前用于收藏柜映射的 `nsarmoire.catalog.v1` JSON，后续可让前端在本地助手模式下使用与 helper 一致的目录数据。
+9. helper 提供 `/catalog`，返回当前用于收藏柜映射的 `nsarmoire.catalog.v1` JSON；前端优先加载站点静态 catalog，静态加载失败时会尝试用 helper catalog 兜底。
 
 仍待完成：
 
