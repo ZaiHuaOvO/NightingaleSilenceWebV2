@@ -69,6 +69,22 @@ goelia ← glynne ← chihaya ← ney ← nightingale ← salvance ← angel页 
 - 当前已经确认的 `angel` 角色只有 `goelia`、`glynne`、`chihaya`、`ney`、`nightingale`、`salvance`。未命名的 `glitch` 角色暂时不创建正式详情页，只允许保留占位视觉结构。
 - Silence 入口、分组页和角色详情页都不再放置可见的 `返回` / `进入` 按钮；必要的跳转只通过边缘翻页蒙版、角色立绘、详情内容内部链接或浏览器历史完成。
 
+## 已确认角色形态规则
+
+同一角色的多种形态不创建新的横向翻页节点，也不占用相邻角色位置。角色 ID 仍保留为角色本体，例如 `salvance`；形态通过查询参数表达，例如：
+
+```text
+#/silence/angel/salvance?form=sorence
+```
+
+实现规则：
+
+- `characterId=salvance` 仍代表沙乐万这个角色，`form=sorence` 只代表当前展示形态。
+- 左右边缘翻页蒙版继续用于 Silence 线性阅读顺序，例如 `nightingale ← salvance ← angel页`，不用于形态切换。
+- 形态切换应放在角色页内部，作为首屏资料卡或详情区里的局部控件。
+- 切回角色本体时移除 `form` 查询参数，回到 `#/silence/angel/salvance`。
+- 形态资料放在角色数据下，不为每个形态单独创建 `SorencePage.vue`。
+
 ## 参考方向
 
 本模块可以参考日漫官网角色介绍页的信息架构，但只参考结构和体验，不复刻具体美术、素材、文案或品牌表达。

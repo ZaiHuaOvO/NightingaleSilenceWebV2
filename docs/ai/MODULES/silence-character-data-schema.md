@@ -252,7 +252,7 @@ story:
       - "123"
     spoilerLevel: major
 variants:
-  - id: solens
+  - id: sorence
     label: 索伦斯
     subtitle: 痛楚
     bannerRef: File:横条-索伦斯.png
@@ -271,8 +271,9 @@ openQuestions:
   - “人物经历”当前只有 123，是否只是占位文本？
   - 正装和家居服装备列表为空，是否需要隐藏装备表，还是保留空槽位？
   - “反社会的心理变态”等评价性文案是否作为公开正式简介保留？
-  - `索伦斯，“痛楚”` 应作为 Salvance 的世界线/变体，还是单独角色页？
 ```
+
+已确认：`索伦斯，“痛楚”` 当前按 Salvance 的形态处理，形态 ID 更正为 `sorence`，推荐 URL 为 `#/silence/angel/salvance?form=sorence`。
 
 ## 目录角色映射待确认
 
