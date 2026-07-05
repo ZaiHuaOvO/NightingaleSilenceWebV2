@@ -21,6 +21,38 @@
     "agent 根据用户对话维护本文件时，应保持 JSON 有效，并避免覆盖无关注释。"
   ],
   "tables": {
+    "Addon.csv": {
+      "purpose": "游戏 UI 文本表。用于部位名、染色标签、铭牌/肖像字段、界面词条等固定显示术语。",
+      "relatedTools": [
+        "NSGlamour",
+        "NSPlate",
+        "NSArmoire"
+      ],
+      "displayColumns": [
+        "Text"
+      ],
+      "columns": {},
+      "rows": {
+        "15009": {
+          "name": "游戏风格",
+          "meaning": "铭牌/肖像信息中的游戏风格字段。旧 NSPlate 字段“活动图标”正式显示应使用该游戏术语。",
+          "confirmedBy": "user",
+          "usedByProject": true,
+          "usedBy": [
+            "NSPlate"
+          ]
+        },
+        "15010": {
+          "name": "活跃时段",
+          "meaning": "铭牌/肖像信息中的活跃时段字段。旧 NSPlate 字段“作息选择”正式显示应使用该游戏术语。",
+          "confirmedBy": "user",
+          "usedByProject": true,
+          "usedBy": [
+            "NSPlate"
+          ]
+        }
+      }
+    },
     "Item.csv": {
       "purpose": "物品基础表。用于装备、图标、名称、说明、装备槽位、模型、染色槽、可投影等外观相关数据。",
       "relatedTools": [
