@@ -6,27 +6,37 @@
 
 站点愿景源文档是用户手写的 `docs/OWNER_VISION.md`。AI 文档和实现计划必须与该文档保持一致。
 
-当前阶段目标是逐步承接原有 `NSHome`、旧 `NSPortable`、`NSGlamour` 的页面入口、交互和前端渲染能力；其中旧 `NSPortable` 在 V2 中的新模块名统一为 `NSPlate`。原后端服务早期作为独立临时兼容 API、行为契约和回归样本保留；最终后端可以按 V2 新规则重写。
+当前阶段目标是逐步承接原有 `NSHome`、旧 `NSPortable`、`NSGlamour` 的页面入口、交互和前端渲染能力；其中旧 `NSPortable` 在 V2 中的新模块名统一为 `NSPlate`。`NSPlate` 默认运行数据源已切到静态 manifest + COS/CDN；旧后端只作为显式 legacy/dev fallback、manifest 生成源和回归样本保留。其他仍依赖后端的模块按各自模块文档推进。
 
 FFXIV 分类强调游戏数据严谨性：装备、染剂、图像、Canvas 渲染、语言数据和导出结果都必须尽量贴近原项目已经验证过的行为。
 
 ## 当前真实状态
 
-当前 V2 仍处于脚手架和规划阶段，不是已经完成迁移的站点。当前已接入第一版页面骨架和路由，但旧项目业务能力尚未迁移。
+当前 V2 已完成基础应用外壳，并且 `NSPlate` 已进入核心工作台收口阶段；但整站还不是所有旧项目的完整替代品。不同模块状态必须分开描述，不能再笼统写成“全部只是占位”或“全部旧业务尚未迁移”。
 
 | 项目层面 | 当前状态                                                                      |
 | -------- | ----------------------------------------------------------------------------- |
 | 前端框架 | Vue 3.5 + Composition API + `<script setup>`                                  |
 | 构建工具 | Vite 6                                                                        |
 | 语言     | TypeScript 5.7                                                                |
-| 路由     | Vue Router 4，当前使用 hash mode，已注册首页、FFXIV、两个工具占位页、Silence 入口/分组占位页和 About |
+| 路由     | Vue Router 4，当前使用 hash mode，已注册首页、FFXIV、NSPlate、NSGlamour、NSArmoire、Silence 入口/分组/角色路由和 About |
 | 状态管理 | Pinia 已安装；目前只有 `src/stores/locale.ts` 这种模块化 store 写法           |
 | CSS      | 已建立第一版 `src/styles/` 公共样式体系                                       |
-| 页面     | 已建立 `src/pages/` 下的首页、FFXIV 分类页、工具占位页和 About 占位页         |
+| 页面     | 已建立 `src/pages/` 下的首页、FFXIV 分类页、NSPlate 工作台、NSGlamour 占位页、NSArmoire 第一阶段页、Silence 页面和 About 占位页 |
 | 站点配置 | 已建立 `src/config/site.ts`，集中维护站点、分类和工具入口信息                 |
 | 本地化   | `locale` store 已接入设置入口、`document.lang` 和 `src/locales/ui.ts` 文案表   |
 | API 封装 | 已建立第一版 `src/composables/useFetch.ts` 和 `src/services/apiBoundaries.ts` |
-| 后端     | 原项目后端仍独立运行，V2 通过 Vite proxy 接入；后续可在契约验证后重写         |
+| 后端/数据源 | `NSPlate` 默认走静态 manifest + COS/CDN；仍需后端的模块通过 Vite proxy 或本机 helper 接入 |
+
+当前模块口径：
+
+| 模块 | 当前状态 |
+| ---- | -------- |
+| `NSPlate` | 核心铭牌工作台已迁入，默认数据源为 `/data/plate/*.json` + COS/CDN；旧 `/api/plate` 只作为显式 legacy/dev fallback、manifest 生成源和旧接口参考。 |
+| `NSGlamour` | 仍是迁移占位页和统一工具页外壳，旧业务尚未迁入。 |
+| `NSArmoire` | 第一阶段本地 helper / snapshot 导入和基础分析已接入，仍按模块文档继续推进。 |
+| `Silence` | 入口、分组页和部分角色页骨架已接入，正式角色资料和正式素材仍未完整接入。 |
+| 首页 / About | 首页是第一版视觉入口，About 仍是占位页。 |
 
 当前实际文件结构重点如下：
 
@@ -70,10 +80,13 @@ NightingaleSilenceWebV2/
     ├── env.d.ts
     ├── pages/
     │   ├── about/
+    │   ├── armoire/
     │   ├── ffxiv/
     │   ├── glamour/
     │   ├── home/
-    │   └── plate/
+    │   ├── plate/
+    │   ├── silence/
+    │   └── style-lab/
     ├── router/
     │   └── index.ts
     ├── services/
@@ -108,7 +121,7 @@ npm run preview
 
 | 服务     | 原项目                         | 本地端口 | 备注                             |
 | -------- | ------------------------------ | -------- | -------------------------------- |
-| 铭牌后端 | 旧 `NSPortable` / V2 `NSPlate` | `3456`   | Node.js 服务，素材路径也由它提供 |
+| 铭牌旧服务 | 旧 `NSPortable` / V2 `NSPlate` legacy | `3456`   | 只作为 legacy/dev fallback、manifest 生成源和旧接口参考 |
 | 幻化后端 | `NSGlamour`                    | `8765`   | Flask 服务，沿用当前本机项目约定 |
 
 ## 目标架构
@@ -140,8 +153,9 @@ src/
 | ----------------- | ----------------- | ----------------------------------- |
 | `#/`              | 首页 / 个人站入口 | `NSHome` + V2 新视觉                |
 | `#/ffxiv`         | FFXIV 分类导航页  | V2 新增                             |
-| `#/ffxiv/plate`   | 铭牌编辑器        | V2 `NSPlate`，来源为旧 `NSPortable` |
+| `#/ffxiv/plate`   | 铭牌编辑器        | V2 `NSPlate`，来源为旧 `NSPortable`，核心工作台已迁入 |
 | `#/ffxiv/glamour` | 幻化工具          | `NSGlamour`                         |
+| `#/ffxiv/armoire` | 衣柜管家          | V2 新增，第一阶段本地 helper / snapshot 工作台 |
 | `#/silence`       | Silence 创作入口  | V2 新增，双入口门厅已接入           |
 | `#/silence/angel` | 不语·silence 分组 | V2 新增，分组占位页已接入           |
 | `#/silence/glitch` | 幽灵·silence 分组 | V2 新增，分组占位页已接入           |
@@ -160,7 +174,7 @@ src/
 目标 API 方向：
 
 - 使用原生 `fetch`，不引入 axios。
-- 通过 Vite proxy 和生产 Nginx 反向代理接入后端；早期接旧后端，后续可在同一路径后替换为新后端。
+- `NSPlate` 素材/预设默认通过静态 manifest 和 COS/CDN 接入；仍需后端的模块通过 Vite proxy 和生产 Nginx 反向代理接入。
 - `src/composables/useFetch.ts` 已提供基础统一封装；业务页面应优先使用它，不要散落裸 `fetch`。
 - `src/services/apiBoundaries.ts` 负责旧项目 API 边界信息，组件不要硬编码 `localhost` 或端口。
 - 后端字段兼容优先；即使重写后端，也必须先抽取旧接口契约和真实样本，不为了前端漂亮结构随意改动可见字段。

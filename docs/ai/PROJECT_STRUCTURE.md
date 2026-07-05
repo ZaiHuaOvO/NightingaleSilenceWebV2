@@ -30,18 +30,21 @@
 
 ## 当前迁移焦点
 
-当前主线仍是整体 V2 迁移：先处理第一阶段两个 FFXIV 工具。`Silence` 已完成入口转正和分组占位页接入，但角色数据、单角色详情和正式素材不进入当前迁移主线。
+当前主线仍是整体 V2 迁移：`NSPlate` 已进入核心工作台收口，`NSGlamour` 仍待旧业务迁移，`NSArmoire` 正在按本地 helper / snapshot 路线推进。`Silence` 已完成入口转正和分组/部分角色页接入，但正式角色资料和正式素材不进入当前迁移主线。
 
 | 工具        | 目标路由          | 当前状态                | 下一步                                               |
 | ----------- | ----------------- | ----------------------- | ---------------------------------------------------- |
-| `NSPlate`   | `#/ffxiv/plate`   | 占位页和 API 边界已接入 | 盘旧 `NSPortable` 接口、预设、素材路径和导出样本。   |
+| `NSPlate`   | `#/ffxiv/plate`   | 核心工作台、静态 manifest、Canvas 预览、信息层和主要导入导出已接入 | 补全全量回归矩阵、像素状态图标规划、字体授权和生产部署 smoke。 |
 | `NSGlamour` | `#/ffxiv/glamour` | 占位页和 API 边界已接入 | 盘旧 Flask 接口、装备/染剂样本、导入和模板数据契约。 |
+| `NSArmoire` | `#/ffxiv/armoire` | 第一阶段本地 helper / snapshot 工作台已接入 | 稳定 catalog、helper 和公开页面降级策略。 |
 
-开工方式以 `docs/ai/MIGRATION_PLAN.md` 的“阶段 2.5：NSPlate / NSGlamour 共同契约盘点”为准：
+`NSGlamour` 或其他尚未迁移旧业务的工具，后续开工方式仍以 `docs/ai/MIGRATION_PLAN.md` 的“阶段 2.5：NSPlate / NSGlamour 共同契约盘点”为参考；`NSPlate` 已完成该阶段的大部分契约盘点和核心迁移，应以 `docs/ai/MODULES/nsplate.md` 的剩余计划为准。
+
+对尚未迁移工具的通用开工顺序：
 
 1. 先确认旧服务和 V2 代理可用。
-2. 同步补齐 `docs/api/nsplate.md`、`docs/api/nsglamour.md` 的真实字段和样本。
-3. 再选择一个工具进入第一段可见迁移。
+2. 同步补齐对应 `docs/api/` 契约的真实字段和样本。
+3. 再选择一个第一段可见迁移切片。
 
 `Silence` 目前只完成最小入口闭环，不进入本轮角色档案业务实现。
 
@@ -70,8 +73,8 @@ src/
 | `src/config/site.ts`            | 站点配置            | 维护站点名称、当前公开路由、导航入口、FFXIV 工具信息和占位文案。             |
 | `src/components/`               | 公共组件            | 当前包含按钮、面板、像素窗口、顶栏、表单字段、工具栏、选项卡和状态提示组件。 |
 | `src/composables/useFetch.ts`   | 请求封装            | 支持 query、json body、responseType、`createClient(basePath)`。              |
-| `src/services/apiBoundaries.ts` | API 边界描述        | 当前服务 FFXIV 两个迁移占位工具。                                            |
-| `src/stores/locale.ts`          | Pinia store         | 当前只有基础 locale store，文案加载尚未接入。                                |
+| `src/services/apiBoundaries.ts` | API 边界描述        | 当前服务 NSGlamour、NSPlate legacy fallback、NSArmoire helper 等边界。         |
+| `src/stores/locale.ts`          | Pinia store         | 当前接入 UI 文案、`document.lang`、语言切换和标题刷新。                       |
 | `src/pages/`                    | 页面组件            | 按页面或分类拆目录，不把复杂业务堆进单文件。                                 |
 | `src/styles/`                   | 全局 CSS 和实验样式 | 全站样式分层，候选样式通过实验文件隔离。                                     |
 
@@ -93,7 +96,7 @@ src/pages/
 | `home/`      | 首页占位视觉已接入；首页有页面专属舞台，不作为全站公共组件默认外观。 |
 | `ffxiv/`     | FFXIV 分类页已接入，读取 `site.ts` 中的工具列表。                    |
 | `glamour/`   | NSGlamour 迁移占位页已接入，真实业务未迁移。                         |
-| `plate/`     | 铭牌工房迁移占位页已接入，真实业务未迁移。                           |
+| `plate/`     | 铭牌工房核心工作台已接入，包含静态 manifest 数据源、Canvas 预览、信息层、配置传输和 PNG/JPG/分层 ZIP。 |
 | `about/`     | About 占位页已接入。                                                 |
 | `silence/`   | Silence 双入口门厅页和 `angel` / `glitch` 分组占位页已接入。          |
 | `style-lab/` | 隐藏内部样式探索页，不写入公开导航。                                 |

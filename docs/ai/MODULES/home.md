@@ -53,8 +53,9 @@
 | -------- | ----------------- |
 | 幻化工房 | `#/ffxiv/glamour` |
 | 铭牌工房 | `#/ffxiv/plate`   |
+| 衣柜管家 | `#/ffxiv/armoire` |
 
-当前 `src/router/index.ts` 已注册首页、FFXIV 分类页、工具占位页和 About 占位页；后续重点是完善首页最终视觉和真实内容。
+当前 `src/router/index.ts` 已注册首页、FFXIV 分类页、各工具页、Silence 页面和 About 占位页；后续重点是完善首页最终视觉和真实内容。
 
 ## 视觉结构
 

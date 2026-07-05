@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-- 模块状态：占位骨架已接入，真实工具业务待迁移。
+- 模块状态：分类导航已接入；`NSPlate` 已进入核心工作台收口，`NSGlamour` 仍待旧业务迁移，`NSArmoire` 第一阶段本地 helper / snapshot 工作台已接入；隐藏内部术语校对页已接入。
 - 计划路由：`#/ffxiv`。
 - 计划页面入口：`src/pages/ffxiv/FfxivIndexPage.vue`。
 - 模块类型：分类导航页 / 工具入口页。
@@ -21,6 +21,8 @@
 #/ffxiv            FFXIV 分类导航页
 #/ffxiv/glamour    NSGlamour 幻化工具
 #/ffxiv/plate      NSPlate 铭牌工具
+#/ffxiv/armoire    NSArmoire 衣柜管家
+#/ffxiv/term-review 内部术语校对页，不进公开导航
 ```
 
 ## 与首页的分工
@@ -44,9 +46,13 @@ FFXIV 分类页 `#/ffxiv`：
 | 工具 | 目标路由 | 状态 |
 |------|---------|------|
 | 幻化工房 | `#/ffxiv/glamour` | 迁移占位页已接入 |
-| 铭牌工房 | `#/ffxiv/plate` | 迁移占位页已接入 |
+| 铭牌工房 | `#/ffxiv/plate` | 核心工作台已接入，默认走静态 manifest + COS/CDN |
+| 衣柜管家 | `#/ffxiv/armoire` | 第一阶段本地 helper / snapshot 工作台已接入 |
+| 术语校对 | `#/ffxiv/term-review` | 隐藏内部页，读取 `src/lib/ffxiv/terms.ts` |
 
-具体工具业务尚未迁移，分类页当前链接到迁移占位页，入口结构保持最终路由。
+工具迁移状态按模块区分：`NSPlate` 不再按占位页处理；`NSGlamour` 仍是占位迁移入口；`NSArmoire` 处于第一阶段验证。
+
+`#/ffxiv/term-review` 只服务人工校对游戏 CSV 术语、旧字段和网页 UI 文案边界，不写入 FFXIV 分类页公开工具卡。术语来源和校对规则见 `docs/ai/data/ffxiv/README.md`。
 
 ## 页面结构建议
 
@@ -67,7 +73,7 @@ FfxivIndexPage
 - 样式层级：模块/分类级。
 - 工具卡、按钮、面板、标签、状态文本优先使用公共组件和公共 CSS。
 - 页面可以有自己的分类页布局，但不要复制首页人物舞台样式。
-- 不为 FFXIV 分类页单独建立主题，继续使用 `atelier` 变量体系。
+- 不为 FFXIV 分类页单独建立主题，继续使用当前全站像素风 token 和 day/night 配色体系。
 - 若工具卡未来也用于其他分类，应抽成公共 `ToolCard` 或类似组件。
 - 首页粉蓝像素风可以作为轻微色彩呼应，但窗口贴纸、人物舞台、强像素背景、浮动图标轨道不进入 FFXIV 分类页默认样式。
 - 如果 FFXIV 分类页需要特殊工具卡外观，优先放在 `src/pages/ffxiv/` 或模块私有组件，不修改公共组件默认外观。
@@ -88,4 +94,4 @@ FfxivIndexPage
 - 浏览器访问 `http://localhost:5173/#/ffxiv`
 - 工具入口在桌面端和移动端布局稳定。
 - 工具入口可键盘聚焦和回车进入。
-- 未实现工具页时，占位跳转不会造成空白或路由错误。
+- 未实现或半实现工具页时，占位/降级状态不会造成空白或路由错误。

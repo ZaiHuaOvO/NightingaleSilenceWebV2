@@ -6,8 +6,8 @@
 
 - `src/composables/useFetch.ts`：已实现基础请求封装。
 - `src/services/apiBoundaries.ts`：已实现旧项目 API 边界配置读取。
-- 页面组件：FFXIV 工具占位页已接入统一工具页外壳，真实业务请求待后续迁移。
-- Vite proxy：用于开发期连接旧项目后端。
+- 页面组件：FFXIV 工具页已接入统一工具页外壳；NSPlate 默认读取静态 manifest，NSGlamour 等仍按模块迁移进度接入后端。
+- Vite proxy：用于开发期连接需要后端的旧项目或 legacy fallback；NSPlate 正式素材/预设数据不再默认依赖旧代理。
 - API 契约草案：`docs/api/nsplate.md`、`docs/api/nsglamour.md`。
 
 后续业务页面应优先通过 `useFetch.ts` 发起请求，不要在组件中散落裸 `fetch`。
@@ -28,7 +28,7 @@
 server: {
   proxy: {
     '/api/plate': {
-      target: 'http://localhost:3456',         // NSPlate / 旧 NSPortable
+      target: 'http://localhost:3456',         // NSPlate legacy/dev fallback, not the default runtime data source
       changeOrigin: true,
       rewrite: (path) => path.replace(/^\/api\/plate(?=\/|$)/, '/api')
     },
@@ -42,8 +42,8 @@ server: {
       changeOrigin: true,
       rewrite: (path) => path.replace(/^\/api\/armoire(?=\/|$)/, '')
     },
-    '/img':         'http://localhost:3456',   // 旧 NSPortable 游戏素材
-    '/img-preview': 'http://localhost:3456',   // 旧 NSPortable 预览缩略图
+    '/img':         'http://localhost:3456',   // legacy fallback only
+    '/img-preview': 'http://localhost:3456',   // legacy fallback only
   }
 }
 ```
@@ -89,11 +89,11 @@ server: {
 | id | API base | health/check path | dev port |
 |----|----------|-------------------|----------|
 | `glamour` | `/api/glamour` | `/health` | `8765` |
-| `plate` | `/api/plate` | `/presets` | `3456` |
+| `plate` | `/api/plate` | `/presets` | `3456`，仅 legacy/dev fallback |
 | `armoire` | `/api/armoire` | `/health` | `8015` |
 
 `NSGlamour` 旧后端有 `/api/health`，因此 V2 通过 `/api/glamour/health` 检查连通性。
-旧 `NSPortable` 后端没有 `/api/health`，当前使用 `/api/plate/presets` 作为轻量连通性检查；不要臆造旧后端不存在的 health 接口。
+旧 `NSPortable` 后端没有 `/api/health`；如果显式启用 `VITE_NSPLATE_DATA_SOURCE=legacy-api`，可用 `/api/plate/presets` 作为轻量连通性检查。默认静态模式不使用这个检查。
 `NSArmoire` 的 `/api/armoire/health` 只用于开发代理；公开页面不能假设服务器能访问用户本机 helper，应直连 `http://127.0.0.1:8015` 并保留手动导入 fallback。
 
 规则：
@@ -104,12 +104,13 @@ server: {
 
 ## 路径约定
 
-- NSPlate 业务 API：V2 前端使用 `/api/plate/...`，代理到旧后端时 rewrite 为 `/api/...`。
-- NSPlate 图片素材：使用 `/img/...`、`/img-preview/...`。
+- NSPlate 默认数据源：读取 `/data/plate/presets.json`、`/data/plate/files.json`，图片素材使用 manifest 中的 COS/CDN base。
+- NSPlate legacy API：只有显式 `VITE_NSPLATE_DATA_SOURCE=legacy-api` 或旧导出 fallback 时使用 `/api/plate/...`；代理到旧后端时 rewrite 为 `/api/...`。
+- NSPlate legacy 图片素材：`/img/...`、`/img-preview/...` 只作为旧服务 fallback，不作为生产默认路径。
 - NSGlamour 业务 API：V2 前端使用 `/api/glamour/...`，代理到旧后端时 rewrite 为 `/api/...`。
 - NSArmoire helper API：开发期使用 `/api/armoire/...`，代理到本机 helper 时去掉 `/api/armoire` 前缀；生产/公开页面直连用户本机 `http://127.0.0.1:8015/...`。
 - 不在页面组件中硬编码 `localhost`、端口号或生产域名。
-- 生产环境由 Nginx 反向代理处理同名路径，并保持与开发代理一致的 rewrite 规则。
+- 生产环境中 NSPlate 的素材/预设默认由静态文件和 COS/CDN 提供；仍需要后端的模块由 Nginx 反向代理处理同名路径，并保持与开发代理一致的 rewrite 规则。
 
 ## 语言约定
 
@@ -119,7 +120,7 @@ server: {
 2. 语言来源为 `src/stores/locale.ts` 的 `current`。
 3. 后端若无法按语言返回，应由前端适配层保底显示已有语言或原始值。
 
-当前 `locale` store 只有基础结构，文案文件和 UI 语言切换仍待接入。
+当前 `locale` store 已接入 UI 文案表、设置入口、`document.lang` 和标题刷新；后续重点是继续补齐全站固定 UI 文案覆盖和业务数据语言 fallback。
 
 ## 错误处理约定
 
@@ -129,6 +130,6 @@ server: {
 
 ## 缓存约定
 
-- 游戏素材图片若由旧服务提供，优先沿用旧服务缓存策略。
+- NSPlate 游戏素材图片由 COS/CDN 提供时，缓存策略随 COS/CDN 和 manifest 版本管理；旧服务缓存策略只适用于 legacy fallback。
 - V2 前端不要在未确认资源更新规则前额外加长期缓存。
 - 模板、字体、游戏数据这类大资源后续需要专门规划版本号和缓存失效策略。

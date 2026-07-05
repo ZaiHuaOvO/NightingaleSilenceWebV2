@@ -101,7 +101,7 @@ src/lib/
 src/lib/plate/
 ├── assets/      素材索引、素材路径、预览路径
 ├── canvas/      画布尺寸、坐标、缩放、基础绘制工具
-├── export/      PNG / ZIP / PSD / JSX 导出数据
+├── export/      PNG / JPG / ZIP 导出数据
 ├── layers/      图层模型、排序、启用状态、校验
 ├── presets/     预设解析和应用
 └── render/      预览和最终渲染

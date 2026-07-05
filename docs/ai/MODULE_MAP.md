@@ -2,11 +2,11 @@
 
 ## 当前代码状态
 
-当前 V2 已完成第一版应用外壳和占位页面骨架：
+当前 V2 已完成第一版应用外壳，并且部分模块已经超过占位阶段：
 
 - `src/main.ts`：创建 Vue app，注册 Pinia 和 Router。
 - `src/App.vue`：渲染轻量全局导航和 `<router-view />`。
-- `src/router/index.ts`：使用 `createWebHashHistory()`，已注册首页、FFXIV 分类页、三个 FFXIV 工具页、Silence 入口/分组页和 About 占位页。
+- `src/router/index.ts`：使用 `createWebHashHistory()`，已注册首页、FFXIV 分类页、三个 FFXIV 工具页、Silence 入口/分组/角色页和 About 占位页。
 - `src/config/site.ts`：集中维护站点名称、首页导航、分类入口、工具入口、来源项目路径和 API base path。
 - `src/composables/useFetch.ts`：提供第一版统一请求封装。
 - `src/services/apiBoundaries.ts`：提供 FFXIV 旧项目 API 边界信息；无后端的工具入口不会进入 API 边界列表。
@@ -14,12 +14,12 @@
 - `src/styles/`：已建立第一版 reset/theme/base/components/utilities 公共 CSS。
 - `src/components/`：已建立第一版 `AppButton.vue`、`AppPanel.vue`、`AppPixelWindow.vue`、`AppTopNav.vue`、`AppField.vue`、`AppToolbar.vue`、`AppTabs.vue`、`AppStatus.vue`。
 - `src/pages/ffxiv/components/ToolApiStatus.vue`：保留给调试或临时占位界面使用；正式工具工作台不展示内部 API 状态块。
-- `src/pages/`：已建立首页、FFXIV 分类页、NSGlamour 占位页、NSPlate 迁移页、NSArmoire 第一阶段页、Silence 占位入口和 About 占位页。
+- `src/pages/`：已建立首页、FFXIV 分类页、NSGlamour 占位页、NSPlate 核心工作台、NSArmoire 第一阶段页、Silence 入口/分组/角色页和 About 占位页。
 
 当前尚未实现：
 
 - `src/lib/glamour/`
-- 旧项目真实业务页面和 Canvas 渲染迁移
+- `NSGlamour` 旧项目真实业务页面、装备/染剂导入、模板 Canvas 渲染迁移
 - `#/silence/glitch/:characterId` 预留单角色详情页，当前 `glitch` 组先使用双人页
 
 当前已存在：
@@ -38,9 +38,10 @@
 | ------------------------------- | -------------------------------------------- | ------------------------------------------- |
 | `#/`                            | `src/pages/home/HomePage.vue`                | 已接入占位视觉首页                          |
 | `#/ffxiv`                       | `src/pages/ffxiv/FfxivIndexPage.vue`         | 已接入分类导航骨架                          |
-| `#/ffxiv/plate`                 | `src/pages/plate/NSPlatePage.vue`            | 已接入 NSPlate 迁移页、基础素材选择和预览   |
+| `#/ffxiv/plate`                 | `src/pages/plate/NSPlatePage.vue`            | 已接入 NSPlate 核心工作台、静态 manifest、Canvas 预览和主要导入导出 |
 | `#/ffxiv/glamour`               | `src/pages/glamour/NSGlamourPage.vue`        | 已接入 NSGlamour 迁移占位页和统一工具页外壳 |
 | `#/ffxiv/armoire`               | `src/pages/armoire/NSArmoirePage.vue`        | 已接入 NSArmoire 第一阶段手动 snapshot 导入、基础统计和分析面板 |
+| `#/ffxiv/term-review`           | `src/pages/ffxiv/FfxivTermReviewPage.vue`    | 隐藏内部 FFXIV 术语校对页，不写入导航          |
 | `#/about`                       | `src/pages/about/AboutPage.vue`              | 已接入 About 占位页                         |
 | `#/style-lab`                   | `src/pages/style-lab/StyleLabPage.vue`       | 隐藏内部样式探索页，不写入导航              |
 | `#/silence`                     | `src/pages/silence/SilenceIndexPage.vue`     | 已接入左右分割海报式双入口页                |
@@ -49,7 +50,7 @@
 | `#/silence/angel/:characterId`  | `src/pages/silence/SilenceCharacterPage.vue` | 已接入动态路由和六个多区块测试角色数据骨架  |
 | `#/silence/glitch/:characterId` | `src/pages/silence/SilenceCharacterPage.vue` | 预留路由形态，当前不启用单人详情页          |
 
-> 注意：当前页面只是 V2 骨架和迁移入口，不代表旧项目功能已经完成迁移。
+> 注意：当前页面状态不一致。`NSPlate` 已进入核心工作台收口；`NSGlamour`、About 和部分内容页仍是占位或迁移入口，不能用同一句“占位页”概括全部模块。
 
 当前导航行为：
 
@@ -75,7 +76,7 @@
   - 首页人物舞台、贴纸和浮动图标属于页面专属样式；全站基础控件统一使用像素风公共外观。
 - **模块文档**：`docs/ai/MODULES/home.md`。
 
-## FFXIV 分类导航页（占位骨架已接入）
+## FFXIV 分类导航页（分类导航已接入）
 
 - **计划路由**：`#/ffxiv`
 - **计划组件**：`src/pages/ffxiv/FfxivIndexPage.vue`
@@ -84,7 +85,7 @@
 - **包含工具**：
   - `#/ffxiv/glamour`：幻化工房
   - `#/ffxiv/plate`：铭牌工房
-  - `#/ffxiv/armoire`：衣柜清理大师
+  - `#/ffxiv/armoire`：衣柜管家
 - **迁移目标**：
   - 承接首页 `FFXIV` 主入口。
   - 展示当前和未来 FFXIV 工具，不把工具列表塞进纯视觉首页。
@@ -93,20 +94,20 @@
   - 只代表当前第一阶段 FFXIV 分类，不代表整站长期只服务 FFXIV。
 - **模块文档**：`docs/ai/MODULES/ffxiv.md`。
 
-## NSPlate 铭牌编辑器（迁移占位页已接入）
+## NSPlate 铭牌编辑器（核心工作台已接入）
 
 - **计划路由**：`#/ffxiv/plate`
 - **来源项目路径**：旧 `NSPortable`
-- **后端**：Node.js HTTP server，开发端口 `3456`
-- **核心能力**：Canvas 铭牌合成、PNG/ZIP/PSD/JSX 导出、多语言、主题/外观配置。
-- **当前状态**：已接入迁移页、统一工具页外壳、旧后端素材/预设读取、基础素材选择和铭牌预览；完整旧业务尚未迁移。
-- **当前 API 检查**：通过 V2 `/api/plate/presets` 检查旧后端连通性；代理 rewrite 到旧后端 `/api/presets`。
+- **默认数据源**：静态 manifest `/data/plate/*.json` + COS/CDN 素材；旧 Node.js 服务端口 `3456` 只保留为 legacy/dev fallback 和 manifest 生成源
+- **核心能力**：Canvas 铭牌合成、PNG/JPG/分层 ZIP 导出、多语言、主题/外观配置。
+- **当前状态**：已接入真实工作台、素材/预设选择、Canvas 预览、自定义图片/出框图、信息层基础编辑、配置导入导出、PNG/JPG 和前端分层 ZIP。
+- **当前数据检查**：通过 `npm run check:plate-static` / `npm run check:plate-static:preview` 校验 `public/data/plate/` 静态 manifest 和 COS 缩略图；通过 `npm run check:plate-regression` 固定核心浏览器回归；页面默认不请求旧 `/api/plate/presets` 或 `/api/plate/files`。
 - **迁移目标**：
-  - 旧项目行为先抽取为 API/数据/视觉契约，最终后端可按 V2 新规则重写。
+  - 旧项目行为先抽取为数据/视觉/导出契约，默认运行脱离旧服务。
   - 旧 Canvas 渲染逻辑或等价新实现迁入 `src/lib/plate/`。
   - 页面交互拆到 `src/pages/plate/`。
   - 与 V2 公共按钮、面板、表单、工具栏样式对齐。
-  - API 和素材请求通过 `/api/plate`、`/img`、`/img-preview` 接入。
+  - 素材和预设通过静态 manifest + COS/CDN 接入；旧 `/api/plate` 只保留显式 fallback 或未来服务端导出能力。
 - **模块文档**：`docs/ai/MODULES/nsplate.md`。
 
 ## NSGlamour 幻化工具（迁移占位页已接入）
@@ -125,7 +126,7 @@
   - API 通过 `/api/glamour` 接入。
 - **模块文档**：`docs/ai/MODULES/nsglamour.md`。
 
-## NSArmoire 衣柜清理大师（第一版本地 helper 已接入）
+## NSArmoire 衣柜管家（第一版本地 helper 已接入）
 
 - **计划路由**：`#/ffxiv/armoire`
 - **需求来源**：`docs/ARMOIRE_PLAN.md`
@@ -190,3 +191,15 @@
   - 不覆盖 `body`、`button`、`input`、`a` 等全局标签默认行为。
   - 不影响 `NSGlamour`、`NSPlate` 等工具页迁移默认样式。
 - **模块文档**：`docs/ai/MODULES/style-lab.md`。
+
+## FFXIV 术语校对页
+
+- **计划路由**：`#/ffxiv/term-review`
+- **计划组件**：`src/pages/ffxiv/FfxivTermReviewPage.vue`
+- **页面类型**：隐藏内部数据校对页
+- **当前状态**：读取 `src/lib/ffxiv/terms.ts` 的轻量术语注册表，支持按模块、状态、来源和关键词筛选，便于人工核对游戏 CSV 术语、旧字段和网页 UI 文案边界。
+- **边界**：
+  - 不写入首页、顶部导航、FFXIV 工具卡或公开入口。
+  - 不直接读取全量原始 CSV，不替代派生数据生成流程。
+  - 校对结论应回写到 `src/lib/ffxiv/terms.ts`、`docs/ai/data/ffxiv/csv-annotations.chs.json` 或对应模块文档。
+- **数据文档**：`docs/ai/data/ffxiv/README.md`。

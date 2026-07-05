@@ -11,7 +11,7 @@
 3. `src/styles/experiments/pixel-soft.css` 只属于 `#/style-lab` 隐藏实验区，不进入 `src/styles/index.css`。
 4. `AppButton`、`AppField`、`AppToolbar`、`AppTabs`、`AppStatus`、`AppPixelWindow`、`AppNotebookList` 和 `AppTopNav` 是当前公共控件基准。
 5. 公共组件默认视觉以 `docs/ai/ARCHITECTURE_PLAN.md` 的“公共组件样式契约 v0.1”为准：方角、硬边框、硬阴影、克制 day/night 像素配色和清晰状态。
-6. 工房工作台变量暂不继续扩展，等第一个项目迁移完成后再按真实重复结构评估。
+6. 工房工作台变量暂不继续扩展；`NSPlate` 已形成第一套真实工作台，后续等 `NSGlamour` 或第二个复杂工具出现稳定重复结构后再评估上提。
 
 ## 顶栏结构
 
@@ -35,7 +35,7 @@
 
 ## 后续审计重点
 
-1. 迁移 `NSPlate` 第一个真实业务切片后，对照本文件和 `WORKBENCH_STYLE_CONTRACT.md` 检查控件是否统一。
+1. `NSPlate` 收口和 `NSGlamour` 第一段真实业务切片完成后，对照本文件和 `WORKBENCH_STYLE_CONTRACT.md` 检查哪些工作台控件值得上提。
 2. 如果某个页面专属样式第三次复用，再考虑上移为公共 class 或 token。
 3. 若需要替换图标，优先让用户从已确认的 iconfont 像素图标合集挑选，再统一接入资产目录。
 4. 首页人物舞台和浮动装饰不得进入公共组件默认样式。

@@ -4,7 +4,7 @@
 
 本文件记录第一阶段将 `NSHome`、旧 `NSPortable`、`NSGlamour` 迁入 V2 的顺序、边界和验证标准，避免 `ARCHITECTURE_PLAN.md` 越写越大。旧 `NSPortable` 在 V2 中的新模块名统一为 `NSPlate`。
 
-整站愿景以 `docs/OWNER_VISION.md` 为准：夜莺不语是个人/工具网站，`FFXIV` 只是当前第一阶段分类。迁移原则是先保留旧项目可用，再逐步在 V2 中建立等价能力。旧项目后端在早期作为临时兼容 API、行为契约和回归样本保留；最终后端可以按 V2 的新规则重写。未完成等价验证前，不删除旧项目和旧部署入口。
+整站愿景以 `docs/OWNER_VISION.md` 为准：夜莺不语是个人/工具网站，`FFXIV` 只是当前第一阶段分类。迁移原则是先保留旧项目可用，再逐步在 V2 中建立等价能力。旧项目后端在早期作为临时兼容 API、行为契约和回归样本保留；其中 `NSPlate` 的正式素材/预设数据源已经切到静态 manifest + COS/CDN，旧 `NSPortable` 后端只作为显式 legacy/dev fallback、manifest 生成源和旧接口参考。未完成等价验证前，不删除旧项目和旧部署入口。
 
 ## 项目边界
 
@@ -12,7 +12,7 @@
 |---------|---------|---------|
 | `NSHome` | `#/` 首页 | 迁入为个人站视觉入口，旧目录可暂时保留备份 |
 | V2 新增 | `#/ffxiv` FFXIV 分类导航页 | 只做工具导航，不承接旧项目业务逻辑 |
-| 旧 `NSPortable` / V2 `NSPlate` | `#/ffxiv/plate` 铭牌编辑器 | 旧 Node.js 后端先继续独立运行，端口 `3456`，同时作为新后端契约参考 |
+| 旧 `NSPortable` / V2 `NSPlate` | `#/ffxiv/plate` 铭牌编辑器 | V2 默认静态 manifest + COS/CDN；旧 Node.js 后端端口 `3456` 仅作 legacy/dev fallback、manifest 生成源和旧导出接口参考 |
 | `NSGlamour` | `#/ffxiv/glamour` 幻化工具 | 旧 Flask 后端先继续独立运行，端口 `8765`，同时作为新后端契约参考 |
 
 ## 总体顺序
@@ -141,9 +141,11 @@ NSHome 完成后，由用户决定先迁移：
 目标：
 
 - 同时盘清两个旧项目的 API、样本数据、资源路径、旧本地状态和第一段可见迁移目标。
-- 验证旧服务能作为临时兼容 API 运行：`NSPlate` 旧 Node 服务端口 `3456`，`NSGlamour` 旧 Flask 服务端口 `8765`。
+- 验证旧服务能作为临时兼容 API 或回归样本运行：`NSPlate` 旧 Node 服务端口 `3456`，`NSGlamour` 旧 Flask 服务端口 `8765`。
 - 补齐 `docs/api/nsplate.md`、`docs/api/nsglamour.md` 中“待补充”的真实字段和样本描述。
 - 明确两个工具各自的第一段垂直切片，但只选择一个先进入业务实现。
+
+当前状态：`NSPlate` 已完成该阶段的大部分契约盘点和核心工作台迁移，后续以 `docs/ai/MODULES/nsplate.md` 的剩余计划为准；`NSGlamour` 仍按本阶段方法开工。
 
 推荐执行顺序：
 
@@ -188,7 +190,7 @@ NSHome 完成后，由用户决定先迁移：
 - 先抽取旧项目 API、素材、预设、Canvas 渲染和导出行为契约。
 - 将旧项目核心 Canvas 渲染逻辑或等价新实现迁入 `src/lib/plate/`。
 - 将页面交互拆到 `src/pages/plate/`。
-- 使用 `/api/plate`、`/img`、`/img-preview` 接入旧后端。
+- 使用静态 manifest + COS/CDN 作为 `NSPlate` 默认素材/预设数据源；旧 `/api/plate`、`/img`、`/img-preview` 只保留为显式 legacy/dev fallback 和旧接口参考。
 - UI 控件尽量使用公共组件和公共样式。
 
 边界：
@@ -199,7 +201,7 @@ NSHome 完成后，由用户决定先迁移：
 
 验证：
 
-- 选层、预览、导出 PNG/ZIP/PSD/JSX 流程与旧项目对齐。
+- 选层、预览、PNG/JPG 和分层 ZIP 流程与旧项目对齐。
 - 游戏素材加载路径正确。
 - 字体、像素坐标、图片裁剪无明显回归。
 
@@ -231,8 +233,8 @@ NSHome 完成后，由用户决定先迁移：
 目标：
 
 - V2 构建产物作为统一前端。
-- Nginx 反向代理旧后端 API。
-- 旧路径按需要做跳转或兼容。
+- `NSPlate` 的 `/data/plate/*.json` 随 V2 静态文件部署，图片走 COS/CDN。
+- 仍需后端的模块由 Nginx 反向代理 API；旧路径按需要做跳转或兼容。
 
 边界：
 
@@ -269,7 +271,7 @@ NSHome 完成后，由用户决定先迁移：
 如果决定重写 `NSPlate` 或 `NSGlamour` 后端，应遵守：
 
 1. 不从空白想象接口，先把旧后端行为整理成 API 契约和样本集。
-2. V2 对外路径保持 `/api/plate/*` 和 `/api/glamour/*` 稳定，后端实现可以在代理后替换。
+2. `NSPlate` 默认对外数据路径为 `/data/plate/*.json` 和 COS/CDN 素材；仍需后端的模块保持 `/api/...` 命名空间稳定，后端实现可以在代理后替换。
 3. 新后端可以重新组织目录、类型、校验和服务边界，但不能无计划改变前端可见字段。
 4. 数据密集逻辑必须有真实样本回归，尤其是装备/染剂、Canvas 导出、素材路径和多语言。
 5. 新旧后端并行验证通过前，旧服务不删除、不下线。

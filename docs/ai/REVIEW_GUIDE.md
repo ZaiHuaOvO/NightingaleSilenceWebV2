@@ -4,7 +4,7 @@
 
 ## 当前真实状态
 
-V2 当前是重构地基，不是旧工具功能的完整替代品。
+V2 当前不是所有旧工具功能的完整替代品，但已经不只是重构地基。`NSPlate` 已进入核心工作台收口；`NSGlamour` 仍是迁移占位页，`NSArmoire` 和 `Silence` 按各自模块文档推进。
 
 可以访问的页面：
 
@@ -14,7 +14,7 @@ V2 当前是重构地基，不是旧工具功能的完整替代品。
 - `#/ffxiv/plate`
 - `#/about`
 
-这些页面当前主要用于验证路由、布局、导航、公共组件和 API 边界。
+这些页面当前状态不同：`#/ffxiv/plate` 可评估真实铭牌工作台、静态数据源、Canvas 预览和导出链路；其他占位或半成品页面主要评估路由、布局、导航、公共组件和 API 边界。
 
 ## 建议重点评估
 
@@ -46,16 +46,23 @@ V2 当前是重构地基，不是旧工具功能的完整替代品。
 - Canvas、导入、导出和多语言是否有回归样本规划。
 - 旧项目复杂细节是否被记录为风险点。
 
+### NSPlate 收口质量
+
+- 默认运行是否只读取 `/data/plate/*.json` 和 COS/CDN，不依赖旧 `/api/plate`。
+- Canvas 预览、PNG/JPG、前端分层 ZIP 和配置导入导出是否保持同一图层顺序来源。
+- 信息层坐标、字体、描边、图标、队徽、作息条是否有旧项目样本对照。
+- 移动端、夜间模式、多语言和旧配置兼容是否进入回归矩阵。
+- 本地是否能通过 `npm run check:plate-static`、`npm run check:plate-static:preview` 和重型浏览器回归 `npm run check:plate-regression`。
+
 ## 暂不建议评估
 
 这些内容当前还不是最终状态：
 
 - 首页最终视觉效果。
-- NSPlate 完整编辑功能。
 - NSGlamour 完整模板和装备信息功能。
-- 新后端质量。
+- 尚未迁移模块的新后端质量。
 - 生产部署。
-- 移动端完整工具体验。
+- 移动端完整工具体验；NSPlate 至少应做基础可用性回归，但不把移动端当作主要生产编辑体验。
 
 ## 本地检查
 
@@ -68,6 +75,14 @@ npm run check
 
 ```bash
 npm run build
+```
+
+如果只评估 NSPlate 收口质量：
+
+```bash
+npm run check:plate-static
+npm run check:plate-static:preview
+npm run check:plate-regression
 ```
 
 ## 关键文档入口
