@@ -26,6 +26,7 @@
 - 2026-07-06 已完成静态 catalog 运行时拆分：普通工作台不再请求 `public/data/armoire-catalog.json`，改为按分区/tab 请求 `armoire-catalog-display-index.json`、`armoire-cabinet-catalog.json`、`armoire-glamour-set-catalog.json`、`armoire-identical-model-catalog.json`、`armoire-dye-catalog.json`、`armoire-store-catalog.json` 和 `armoire-store-item-display-index.json`。完整 catalog 继续保留为构建源、校正页和脚本校验输入，不作为普通页面运行时依赖。
 - 2026-07-06 已进一步拆分物品显示索引：普通工作台改为按当前 snapshot itemId 请求 `public/data/armoire-item-display-chunks/*.json`，每个 chunk 覆盖 2000 个 itemId 区间；`armoire-catalog-display-index.json` 继续保留为完整显示索引和后续脚本/校正兜底，不作为衣柜清理默认请求。`衣柜清理` 默认不再请求 `armoire-identical-model-catalog.json`，同模型索引只在图鉴 tab 或手动刷新静态数据时加载。
 - 2026-07-06 已继续拆分衣柜清理默认依赖：`衣柜清理` 不再默认请求完整 `armoire-cabinet-catalog.json` 和 `armoire-glamour-set-catalog.json`，改为按当前 snapshot itemId 请求 `public/data/armoire-cabinet-item-chunks/*.json` 和 `public/data/armoire-glamour-set-chunks/*.json`。完整收藏柜和套装 catalog 只在查漏补缺对应详情 tab 或手动刷新静态数据时加载。
+- 2026-07-06 已将三类 itemId chunk composable 改为批量合并 reactive state：同一批 snapshot itemId 对应的 chunk 请求完成后最多写入一次 `chunksByKey`，避免每个 chunk 返回都触发 catalog computed 和 snapshot analysis 重算。
 
 ## 已读取文件
 
@@ -703,7 +704,8 @@ tools/nsarmoire-helper/*
 4. `armoire-store-catalog.json` 只在进入查漏补缺的商城统计时加载。
 5. 分析函数先共享 `ownedIndex`，降低导入大 snapshot 后重复扫描成本。
 6. 已拆分 `armoire-catalog.json` 为多个静态索引，并将物品显示、收藏柜关系和投影台套装关系二次拆成 itemId 区间 chunk；后续新增 NSArmoire 分析能力时必须优先新增或复用轻量索引，不得把普通页面重新强依赖完整主 catalog。
-7. 生产预览必须验证空页面没有 `/data/armoire-catalog.json` 请求，不能只用 Vite dev server 体验判断性能。
+7. itemId chunk 加载器必须批量合并 Vue reactive state，避免一批 chunk 内每块返回都触发一次 catalog 合并和 snapshot analysis 重算。
+8. 生产预览必须验证空页面没有 `/data/armoire-catalog.json` 请求，不能只用 Vite dev server 体验判断性能。
 
 ### 阶段 4：扩展读取容器和商城时装统计
 
