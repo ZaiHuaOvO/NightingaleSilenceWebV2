@@ -12,6 +12,7 @@
 - 后续可选形态：独立卫月 / Dalamud 插件项目。该项目暂不放入 V2 仓库，真正启动前必须先阅读官方 Dalamud 开发者指南并单独规划。
 - 当前 V2 后端状态：V2 自身没有后端，现阶段通过 Vite proxy 接旧 `NSGlamour`、`NSPlate` 服务和本机 `NSArmoire` helper。
 - 当前本地助手目录：`tools/nsarmoire-helper`。
+- 当前本地助手分发口径：公开页面跳转到仓库 GitHub Releases 最新页，由用户下载 zip；页面不直链 `.exe` 或 `.zip`。
 - 当前本地助手端口：`8015`，开发期 `/api/armoire/*` 代理到 `http://127.0.0.1:8015/*`；生产/公开页面直连 `http://127.0.0.1:8015`。
 - 2026-07-05 已完成三分区工作台第一版：`NSArmoireWorkspace.vue` 改为“导入区 + 分区轨道 + 当前分区内容”，新增 `NSArmoireSectionRail.vue` 和 `NSArmoireCharacterPanel.vue`。当前分区包括衣柜清理、查漏补缺、角色配置；衣柜清理承接整理建议和容器分布，查漏补缺承接图鉴、商城、判定依据和静态数据，角色配置第一版只展示当前 snapshot 的角色名、服务器、来源、生成时间、条目数和雇员缓存数。尚未实现本地角色档案持久化、手动合并、商城账号购买状态或完整 snapshot 保存。
 - 2026-07-05 已建立第一版商城目录：`public/data/armoire-store-catalog.json` 记录国服商城公开商品列表中筛出的外观商品；有国际服商品链接时，未校正条目的 `itemIds` 以国际服商城商品详情 `items` + 日文 `Item.csv` 映射结果为主，国服商城说明只保留为国服商品名、链接、价格和无国际服链接时的待校正参考。商城卡片封面使用 `coverItemId`，仅用于展示图标，不参与拥有状态检测；`NSArmoireStorePanel.vue` 当前只根据 snapshot 检测这些物品是否出现在角色仓库中，不等同于账号购买记录。目录可通过 `npm run build:armoire-store-catalog` 刷新，生成脚本会尽量保留已有人工 `corrected: true`、`itemIds` 和 `coverItemId` 校正。
@@ -727,8 +728,9 @@ tools/nsarmoire-helper/*
 
 1. 优化推荐排序和风险等级。
 2. 加入导出清单功能，例如“要补收藏柜的物品列表”。
-3. 明确 helper 分发、版本更新和杀软误报说明。
-4. 确认是否公开发布、是否仅本机使用、是否需要签名。
+3. helper 正式分发走 GitHub Releases 最新页：页面链接 Release 页面，不直链可执行文件；Release 附 zip 包、版本号、支持游戏版本、SHA256、使用步骤、源码路径和更新说明。
+4. Release 说明必须明确 helper 只监听 `127.0.0.1`、不上传用户仓库数据，并说明杀软/SmartScreen 可能提示未知发布者。
+5. 确认是否公开发布、是否仅本机使用、是否需要签名。
 
 ### 阶段 6：独立 Dalamud 插件预研
 
