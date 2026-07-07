@@ -30,7 +30,12 @@
 - 2026-07-06 已将三类 itemId chunk composable 改为批量合并 reactive state：同一批 snapshot itemId 对应的 chunk 请求完成后最多写入一次 `chunksByKey`，避免每个 chunk 返回都触发 catalog computed 和 snapshot analysis 重算。
 - 2026-07-06 生产预览性能 trace 继续确认：空进 `#/ffxiv/armoire` 不请求 `/data/armoire-catalog.json`，无主线程 long task；后置面板、商城 catalog 校验器和 helper API 已改为按需 chunk，空页不再加载 `itemDisplay-*`、`storeCatalog-*` 或 `nsarmoireHelperApi-*`。当前首屏最大剩余资源是全站中文像素字体 `fusion-pixel-12px-proportional-zh_hans.otf.woff2`，约 713 KB transfer。
 - 2026-07-06 商城统计卡片已扩展为逐散件展示：每件散件显示已拥有/未拥有；已拥有散件列出 snapshot 中的容器位置和染色，超过 3 条副本时折叠剩余数量。地区商城入口按 `regionalStoreUrls` 拆成简中服、繁中服、GLOBAL 和 한국 按钮；该统计仍只表示当前角色 snapshot 中是否出现散件，不等同商城账号购买记录。
-- 2026-07-06 本地 helper 已将背包/兵装库/鞍囊/雇员物品实例的 `spiritbond` 透出到 snapshot。该字段用于验证可交易装备的实例绑定状态，不能由静态 `Item.csv` 交易字段替代；第一轮验证样本为两件 `经典眼镜`：HQ 已绑定、NQ 未绑定。实际 snapshot 中两条 `itemId=9298` 分别输出 `spiritbond: 1` 和 `spiritbond: 0`，可先按 `spiritbond > 0` 判断已绑定；但当前背包 HQ 解析仍不可靠，样本两条均输出 `hq: false`，HQ/NQ 需要另行定位实例 flags/condition 字节。
+- 2026-07-06 本地 helper 已将背包/兵装库/鞍囊/雇员物品实例的 `spiritbond` 透出到 snapshot。该字段用于验证可交易装备的实例绑定状态，不能由静态 `Item.csv` 交易字段替代；第一轮验证样本为两件 `经典眼镜`：HQ 已绑定、NQ 未绑定。实际 snapshot 中两条 `itemId=9298` 分别输出 `spiritbond: 1` 和 `spiritbond: 0`。当前分析口径无视 HQ/NQ，只使用绑定关系：`spiritbond === 0` 视为已知未绑定，`spiritbond > 0` 视为已绑定，缺失 `spiritbond` 时不进入未绑定可交易清单。
+- 2026-07-08 helper 前端接入已支持多进程选择、雇员缓存探针轮询、雇员缓存变化后自动刷新 snapshot、手动清空雇员缓存。页面可通过 `/processes` 和 `/process/select` 切换读取目标进程；连接 helper 后可见页面每 2 秒、隐藏页面每 10 秒轮询 `/probe`，发现雇员缓存变化后延迟约 1.4 秒自动刷新。
+- 2026-07-08 衣柜分析新增行动项过滤：`inventoryType=12002` 或雇员容器名以 `市场` 结尾的雇员市场上架物品会从商城拥有状态、可交易物品、重复物品、同模型和生产采集复制品等行动建议中排除，避免把已挂市场的物品当成可整理背包库存。
+- 2026-07-08 `衣柜统计` 已替换原查漏补缺图鉴位置，按容器/背包折叠展示当前 snapshot 物品图标；展开时才渲染对应容器图标。单件物品卡片和商城散件支持右键打开灰机 wiki，移动端用长按。
+- 2026-07-08 商城面板改为“分组图标总览 + 选中详情”结构：先按来源/标签分组，再在组内按 Global 商品编号倒序；未拥有图标灰化。详情卡展示本地化套装名、各地区价格、右上角地区短链、暂无链接状态、填充色块标签和散件位置/染色。商城数据校正页改为每次加载 10 条并支持继续滚动加载，同时可编辑 `regionalPriceLabels`。
+- 2026-07-08 已接入生产采集复制品回收板块：构建阶段输出轻量 `public/data/armoire-crafter-gatherer-replica-catalog.json`，当前候选 275 件、无缺失项；衣柜清理按 snapshot 命中项展示所在位置、回收可得 `染剂兑换券 x4` 和返还染剂。
 
 ## 已读取文件
 
@@ -440,7 +445,50 @@ src/lib/armoire/
 | `duplicateItems`         | 同一个 `itemId` 在 snapshot 中出现多条记录的精确重复物品                                |
 | `duplicateModelGroups`   | `Model{Main}`、`Model{Sub}`、`ItemUICategory`、`EquipSlotCategory` 都完全一致的重复装备 |
 | `dyeRiskItems`           | 已染色、双染色或高价值染剂相关风险项                                                    |
+| `crafterGathererReplicas` | 当前仍拥有的生产采集复制品，以及回收后可获得的染剂兑换券和返还染剂                      |
 | `missingItems`           | 用户未拥有但属于收藏柜/套装/同模补全目标的物品                                          |
+
+### 生产采集复制品回收板块
+
+衣柜清理已新增 `生产采集复制品` 板块，用于列出当前角色仍拥有的生产/采集复制品，并计算官方回收补偿。
+
+当前功能：
+
+1. 列出 snapshot 中仍拥有的生产采集复制品。
+2. 每件显示当前所在容器/背包位置。
+3. 每件显示是否染色；如果已染色，展示染剂色块、染剂名和染剂槽位。
+4. 每件计算回收收益：`染剂兑换券 x4`。
+5. 每件同时统计该部件上已染染剂的返还。
+6. 板块汇总总件数、总染剂兑换券数量和可返还染剂清单。
+
+识别口径必须保守。不能只用中文名包含 `（复制品）` 判断，因为游戏数据里还有大量武器、古武或非生产采集装备也带有 `（复制品）`。当前使用构建阶段生成的轻量 itemId 列表，不让普通页面重新依赖完整 catalog。
+
+第一轮候选条件：
+
+1. 只针对国服和韩服存在的生产/采集复制品。
+2. 国服名称包含 `（复制品）`。
+3. 品级为 `1`。
+4. 装备等级为 `1`。
+5. 品质颜色为蓝色或绿色。
+6. 物品类型必须属于生产/采集相关装备。
+7. 排除武器、古武、战斗职业复制品和其它同名误命中的复制品。
+
+当前实现：
+
+1. `scripts/build-armoire-catalog.mjs` 输出 `public/data/armoire-crafter-gatherer-replica-catalog.json`，schema 为 `nsarmoire.crafterGathererReplicaCatalog.v1`。
+2. 当前候选列表为 275 个 itemId，`items` 显示项 275 条，`missingItemIds` 为 0；已排除 `23343`、`23344`，`27956` 因装备槽位口径不命中。
+3. `src/lib/armoire/analyzeCrafterGathererReplicas.ts` 只消费 actionable owned index、候选 itemId 集合和已加载显示/染剂数据。
+4. 分析结果记录 `itemId`、数量、容器位置、染剂槽位、单件兑换券数量、合计兑换券数量和返还染剂。
+5. `analyzeArmoireSnapshot()` 已接入该分析，衣柜清理板块展示，不影响商城图鉴和角色配置。
+6. UI 文案全部走本地化 key，不在 Vue 模板或组件脚本中硬编码展示文案。
+
+验证要求：
+
+1. 用候选列表样例确认不会把古武、武器和战斗职业复制品误纳入。
+2. 用含未染色、单染、双染复制品的 snapshot 样本验证染剂返还。
+3. 验证合计券数为 `命中件数 * 4`。
+4. 验证无命中时显示空状态，不影响现有衣柜清理建议。
+5. 验证新增数据源不会导致空页面重新加载完整 `armoire-catalog.json`。
 
 ### 收集度统计口径
 
@@ -673,7 +721,7 @@ tools/nsarmoire-helper/*
 当前已完成 v0.4.5：
 
 1. 新增 `tools/nsarmoire-helper`，使用 C# / .NET 7 构建本地助手。
-2. helper 提供 `/health`、`/processes`、`/process/select`、`/probe`、`/snapshot`、`/snapshot/refresh` 和 `/shutdown`。
+2. helper 提供 `/health`、`/processes`、`/process/select`、`/probe`、`/retainer-cache/clear`、`/snapshot`、`/snapshot/refresh` 和 `/shutdown`。
 3. helper 支持投影台、背包、兵装库、鞍囊、当前已加载雇员缓存和收藏柜 snapshot，输出 `source: 'local-helper'`。
 4. V2 页面提供连接状态、刷新按钮和手动导入 fallback。
 5. helper 只监听 `127.0.0.1`，错误响应不输出本机路径或堆栈。
@@ -682,6 +730,8 @@ tools/nsarmoire-helper/*
 8. 收藏柜读取参考 `Seventhxiv/Collections` 的 `UIState.Cabinet` 口径：helper 读取 `UnlockedItems` bitset，并用 catalog `cabinetEntries` 映射到 itemId。
 9. helper 提供 `/catalog`，返回当前用于收藏柜映射的 `nsarmoire.catalog.v1` JSON；前端优先加载站点静态 catalog，静态加载失败时会尝试用 helper catalog 兜底。
 10. `/health` 返回 catalog 定位状态和收藏柜映射条目数，用于不打开 `/probe` 时快速判断 helper 静态目录是否就绪。
+11. 前端连接 helper 后会轮询 `/probe` 观察雇员缓存变化；页面可见时约 2 秒一次，隐藏时约 10 秒一次。检测到缓存签名变化后，自动调用 `/snapshot/refresh` 刷新当前 snapshot。
+12. `/retainer-cache/clear` 清空当前 helper 进程内的雇员库存缓存；前端删除缓存后保留当前页面数据，直到用户刷新或重新读取。
 
 仍待完成：
 
@@ -721,6 +771,9 @@ tools/nsarmoire-helper/*
 6. 已建立第一版商城时装 catalog：国服商城先用公开商品列表生成 `public/data/armoire-store-catalog.json`，刷新命令为 `npm run build:armoire-store-catalog`；国际服商城先记录来源；商品封面图标使用 `coverItemId`，不参与拥有状态检测；商品到游戏物品的 `itemIds` 映射仍需人工校正和持续维护。网页导出的校正 JSON 用 `npm run apply:armoire-store-corrections -- <corrections.json>` 合并回目录。
 7. 商城时装统计当前展示“已拥有 / 缺部分 / 未拥有 / 待校正”，含义是当前 snapshot 中是否出现对应商城散件；真正“已购买 / 未购买”的账号状态来源必须保守设计，可以来自用户手动标记、导入清单或后续明确授权的数据读取，不默认抓取用户商城账号。
 8. 商城时装、图鉴和仓库统计当前先按角色名 + 服务器归档，支持用户在多个角色之间切换和对比；本地角色缓存当前保存每个角色最近一次完整 snapshot，且只在用户本机浏览器 IndexedDB 内保存。后续取得稳定角色 ID 后再升级自动合并规则，避免不同角色的购买/拥有状态混在一起。
+9. 衣柜清理新增 `生产采集复制品` 板块前，必须先生成并人工确认生产/采集复制品 itemId 候选列表；确认后再接入 snapshot 分析、染剂返还统计和 UI 展示。该板块每件复制品按 `染剂兑换券 x4` 计算，并额外统计该物品当前染色可返还的染剂。
+10. 商城时装 catalog 已支持 `localizedNames`、`regionalStoreUrls` 和 `regionalPriceLabels`。价格展示不是外显内部字段名，而是按固定地区标签展示，例如 `简中服 12800点券`、`繁中服 300水晶`、`Global Server 19200 crysta`、`한국 25,300 크리스탈`。
+11. 商城校正页只用于维护数据，不进入公开导航；为避免一次性渲染过多表单，当前每批只渲染 10 条，滚动到底部或点击加载更多再继续。
 
 商城时装目录参考：
 
