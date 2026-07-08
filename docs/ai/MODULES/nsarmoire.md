@@ -11,8 +11,9 @@
 - 计划形态：V2 网页工具 + 用户本机本地助手。
 - 后续可选形态：独立卫月 / Dalamud 插件项目。该项目暂不放入 V2 仓库，真正启动前必须先阅读官方 Dalamud 开发者指南并单独规划。
 - 当前 V2 后端状态：V2 自身没有后端，现阶段通过 Vite proxy 接旧 `NSGlamour`、`NSPlate` 服务和本机 `NSArmoire` helper。
-- 当前本地助手目录：`tools/nsarmoire-helper`。
-- 当前本地助手分发口径：公开页面跳转到仓库 GitHub Releases 最新页，由用户下载 zip；页面不直链 `.exe` 或 `.zip`。
+- 当前本地助手正式项目：`H:\NightingaleSilenceWeb\NSArmoireButler`；V2 内 `tools/nsarmoire-helper` 只作为历史内置副本/开发参考。
+- 当前本地助手分发口径：公开页面跳转到 `NSArmoireButler` 仓库 GitHub Releases 最新页，由用户下载 zip；页面不直链 `.exe` 或 `.zip`。
+- 2026-07-08 已开始拆分 `NSArmoireButler` 独立项目：独立项目使用 `NSArmoireButler.exe` 作为发布产物，默认启动后打开 `https://nightingalesilence.com/#/ffxiv/armoire?connect=1`，网页带 `connect=1` 时自动连接本机 helper。Release 包提供 `register-protocol.ps1` 注册 `nsarmoire-butler://start`；网页连接失败时可尝试唤起该协议并自动重试连接。
 - 当前本地助手端口：`8015`，开发期 `/api/armoire/*` 代理到 `http://127.0.0.1:8015/*`；生产/公开页面直连 `http://127.0.0.1:8015`。
 - 2026-07-05 已完成三分区工作台第一版：`NSArmoireWorkspace.vue` 改为“导入区 + 分区轨道 + 当前分区内容”，新增 `NSArmoireSectionRail.vue` 和 `NSArmoireCharacterPanel.vue`。当前分区包括衣柜清理、查漏补缺、角色配置；衣柜清理承接整理建议和容器分布，查漏补缺承接图鉴、商城、判定依据和静态数据，角色配置展示当前 snapshot 的角色名、服务器、来源、生成时间、条目数、雇员缓存数和本地角色缓存列表。尚未实现手动合并、商城账号购买状态或稳定角色 ID 自动合并。
 - 2026-07-05 已建立第一版商城目录：`public/data/armoire-store-catalog.json` 记录国服商城公开商品列表中筛出的外观商品；有国际服商品链接时，未校正条目的 `itemIds` 以国际服商城商品详情 `items` + 日文 `Item.csv` 映射结果为主，国服商城说明只保留为国服商品名、链接、价格和无国际服链接时的待校正参考。商城卡片封面使用 `coverItemId`，仅用于展示图标，不参与拥有状态检测；`NSArmoireStorePanel.vue` 当前只根据 snapshot 检测这些物品是否出现在角色仓库中，不等同于账号购买记录。目录可通过 `npm run build:armoire-store-catalog` 刷新，生成脚本会尽量保留已有人工 `corrected: true`、`itemIds` 和 `coverItemId` 校正。
@@ -636,7 +637,7 @@ interface ArmoireHelperHealth {
 
 必须注意：
 
-- `Asvel` 已验证投影台读取路线；当前 `tools/nsarmoire-helper` 已在本机验证外部读取投影台、背包、兵装库、鞍囊、当前已加载雇员和收藏柜，但这些都仍依赖当前游戏版本签名和结构偏移。
+- `Asvel` 已验证投影台读取路线；当前独立项目 `NSArmoireButler` 已在本机验证外部读取投影台、背包、兵装库、鞍囊、当前已加载雇员和收藏柜，但这些都仍依赖当前游戏版本签名和结构偏移。
 - 进程内存结构会随游戏版本变化，读取逻辑必须有版本探测、失败提示和保守 fallback。
 - 如果内存签名、结构偏移或容器语义随游戏版本变化，先到 Dalamud Plugin Browser（`https://tommadness.github.io/Plugin-Browser/`）按能力关键词查找开源插件，再从公开仓库里确认对应 `FFXIVClientStructs` 结构、Dalamud API 或插件缓存口径；实际落地仍必须回到本机 `FFXIVClientStructs.dll/xml` 和 helper `/probe` 验证。
 - 雇员全量归档不是一次性全读；当前方案是读取当前活动雇员并缓存，用户需要逐个打开雇员让 helper 累积。这是正式同步流程，不作为未攻克难点。
@@ -673,7 +674,8 @@ src/pages/armoire/NSArmoirePage.vue
 src/pages/armoire/composables/useArmoireSnapshot.ts
 src/pages/armoire/components/*
 src/lib/armoire/*
-tools/nsarmoire-helper/*
+H:\NightingaleSilenceWeb\NSArmoireButler\*
+tools/nsarmoire-helper/*（历史内置副本/开发参考）
 ```
 
 第一阶段 A/B 只做手动导入和前端分析，没有修改 `vite.config.ts`，也没有为 `NSArmoire` 创建 helper API 边界。
@@ -720,7 +722,7 @@ tools/nsarmoire-helper/*
 
 当前已完成 v0.4.5：
 
-1. 新增 `tools/nsarmoire-helper`，使用 C# / .NET 7 构建本地助手。
+1. 新增本地助手，已从 V2 内置 `tools/nsarmoire-helper` 拆为独立项目 `H:\NightingaleSilenceWeb\NSArmoireButler`，使用 C# / .NET 7 构建。
 2. helper 提供 `/health`、`/processes`、`/process/select`、`/probe`、`/retainer-cache/clear`、`/snapshot`、`/snapshot/refresh` 和 `/shutdown`。
 3. helper 支持投影台、背包、兵装库、鞍囊、当前已加载雇员缓存和收藏柜 snapshot，输出 `source: 'local-helper'`。
 4. V2 页面提供连接状态、刷新按钮和手动导入 fallback。
