@@ -14,7 +14,7 @@
 - 当前本地助手正式项目：`H:\NightingaleSilenceWeb\NSArmoireButler`；V2 内 `tools/nsarmoire-helper` 只作为历史内置副本/开发参考。
 - 当前本地助手分发口径：公开页面跳转到 `NSArmoireButler` 仓库 GitHub Releases 最新页，由用户下载 zip；页面不直链 `.exe` 或 `.zip`。
 - 2026-07-08 已开始拆分 `NSArmoireButler` 独立项目：独立项目使用 `NSArmoireButler.exe` 作为发布产物，默认启动后打开 `https://nightingalesilence.com/#/ffxiv/armoire?connect=1`，网页带 `connect=1` 时自动连接本机 helper。Release 包提供 `register-protocol.ps1` 注册 `nsarmoire-butler://start`；网页连接失败时可尝试唤起该协议并自动重试连接。
-- 2026-07-08 `NSArmoireButler` 当前 helper 版本为 `0.5.1`，`/probe` 增加 `snapshotContentHash`，用于前端保留 2 秒探针但只在可读衣柜内容变化时刷新完整 snapshot。Release 面向普通用户，不外显 SHA256 校验文案。
+- 2026-07-09 `NSArmoireButler` 当前 helper 版本为 `0.5.2`，`/probe` 保留 `snapshotContentHash`，用于前端保留 2 秒探针但只在可读衣柜内容变化时刷新完整 snapshot；雇员物品实例会输出 `retainerSlot`，用于网页按“雇员 1-10”的游戏槽位顺序展示衣柜统计。Release 面向普通用户，不外显 SHA256 校验文案。
 - 当前本地助手端口：`8015`，开发期 `/api/armoire/*` 代理到 `http://127.0.0.1:8015/*`；生产/公开页面直连 `http://127.0.0.1:8015`。
 - 2026-07-05 已完成三分区工作台第一版：`NSArmoireWorkspace.vue` 改为“导入区 + 分区轨道 + 当前分区内容”，新增 `NSArmoireSectionRail.vue` 和 `NSArmoireCharacterPanel.vue`。当前分区包括衣柜清理、查漏补缺、角色配置；衣柜清理承接整理建议和容器分布，查漏补缺承接图鉴、商城、判定依据和静态数据，角色配置展示当前 snapshot 的角色名、服务器、来源、生成时间、条目数、雇员缓存数和本地角色缓存列表。尚未实现手动合并、商城账号购买状态或稳定角色 ID 自动合并。
 - 2026-07-05 已建立第一版商城目录：`public/data/armoire-store-catalog.json` 记录国服商城公开商品列表中筛出的外观商品；有国际服商品链接时，未校正条目的 `itemIds` 以国际服商城商品详情 `items` + 日文 `Item.csv` 映射结果为主，国服商城说明只保留为国服商品名、链接、价格和无国际服链接时的待校正参考。商城卡片封面使用 `coverItemId`，仅用于展示图标，不参与拥有状态检测；`NSArmoireStorePanel.vue` 当前只根据 snapshot 检测这些物品是否出现在角色仓库中，不等同于账号购买记录。目录可通过 `npm run build:armoire-store-catalog` 刷新，生成脚本会尽量保留已有人工 `corrected: true`、`itemIds` 和 `coverItemId` 校正。
@@ -23,7 +23,7 @@
 - 2026-07-05 已新增隐藏商城数据校正页：`#/ffxiv/armoire/store-review`。该页不进入公开导航，只用于校正商城套装散件映射和国服、国际服、繁中服、韩服链接；页面编辑先保存在浏览器本地，并通过导出校正 JSON 交给开发侧回写 `armoire-store-catalog.json`。回写命令为 `npm run apply:armoire-store-corrections -- <corrections.json>`，可用 `--dry-run` 先验证。校正页可将家具、庭具、坐骑等误混入的非外观商品标记为排除，回写脚本会从正式商城目录中删除这些条目。
 - 2026-07-06 商城数据校正页已支持手工编辑 `tags` 和 `detailTags`，并可按未打标签、已有标签、具体商城标签或男女限定筛选。标签来源仍以国际服商城自动分类为初始值，用户可在校正页增删 NPC时装、节日来源、男性限定、女性限定等标签；导出的校正 JSON 可通过 `npm run apply:armoire-store-corrections -- <corrections.json>` 回写。
 - 2026-07-05 用户已确认当前 snapshot 可保存在浏览器本地缓存中，用于刷新或再次进入页面时直接恢复到衣柜清理页。2026-07-07 起当前实现改为使用 IndexedDB `nsarmoire-character-cache` 按角色保存完整 snapshot；`localStorage` 只保存当前 active profile key 和旧 `latestSnapshot` 的一次性迁移槽位。该缓存仍只在本机浏览器内，不上传公开服务器。
-- 2026-07-05 已接入贵重染剂偏好第一版：页面允许用户在通用染剂、追加染剂1、追加染剂2、商城特殊染剂中选择哪些类别需要进入高风险染色清单；默认选择追加染剂1、追加染剂2和商城特殊染剂。染剂类别以当前游戏染剂合并后的颜色范围维护，后续游戏版本更新或染剂系统改动时必须复核该映射。
+- 2026-07-05 已接入贵重染剂偏好第一版：页面允许用户选择通用染剂、追加染剂1、追加染剂2等类别，也允许在商城特殊染剂中选择具体染剂。默认只选择具体染剂 `无瑕白`、`煤玉黑`、`柔彩粉`；追加染剂1/2 不默认整体视为贵重。染剂类别以当前游戏染剂合并后的颜色范围维护，后续游戏版本更新或染剂系统改动时必须复核该映射。
 - 2026-07-06 已接入本地角色档案摘要第一版；2026-07-07 已升级为 IndexedDB 多角色完整 snapshot 缓存：`useArmoireCharacterProfiles.ts` 会在 snapshot 导入或 helper 刷新后按“角色名@服务器”记录最近一次完整 snapshot，同时维护摘要列表，包括角色名、服务器、数据时间、来源、条目数、已读取容器和雇员名列表。缺少角色名或服务器的 snapshot 会生成未识别档案键，避免混入其他角色。删除当前角色缓存时保留当前页面数据，但清除持久化记录，刷新后不会恢复该角色。
 - 2026-07-06 已确认 NSArmoire 当前加载模型存在明显性能问题：生产包空进 `#/ffxiv/armoire` 也会请求 `armoire-catalog.json`，该文件约 6.5 MB raw、约 730 KB gzip，并会在客户端解析为 3 万多个 item 对象。后续暂停商城卡片扩展，先执行性能收缩计划。
 - 2026-07-06 已完成静态 catalog 运行时拆分：普通工作台不再请求 `public/data/armoire-catalog.json`，改为按分区/tab 请求 `armoire-catalog-display-index.json`、`armoire-cabinet-catalog.json`、`armoire-glamour-set-catalog.json`、`armoire-identical-model-catalog.json`、`armoire-dye-catalog.json`、`armoire-store-catalog.json` 和 `armoire-store-item-display-index.json`。完整 catalog 继续保留为构建源、校正页和脚本校验输入，不作为普通页面运行时依赖。
@@ -34,12 +34,14 @@
 - 2026-07-06 商城统计卡片已扩展为逐散件展示：每件散件显示已拥有/未拥有；已拥有散件列出 snapshot 中的容器位置和染色，超过 3 条副本时折叠剩余数量。地区商城入口按 `regionalStoreUrls` 拆成简中服、繁中服、GLOBAL 和 한국 按钮；该统计仍只表示当前角色 snapshot 中是否出现散件，不等同商城账号购买记录。
 - 2026-07-06 本地 helper 已将背包/兵装库/鞍囊/雇员物品实例的 `spiritbond` 透出到 snapshot。该字段用于验证可交易装备的实例绑定状态，不能由静态 `Item.csv` 交易字段替代；第一轮验证样本为两件 `经典眼镜`：HQ 已绑定、NQ 未绑定。实际 snapshot 中两条 `itemId=9298` 分别输出 `spiritbond: 1` 和 `spiritbond: 0`。当前分析口径无视 HQ/NQ，只使用绑定关系：`spiritbond === 0` 视为已知未绑定，`spiritbond > 0` 视为已绑定，缺失 `spiritbond` 时不进入未绑定可交易清单。
 - 2026-07-08 helper 前端接入已支持多进程选择、雇员缓存探针轮询、连接后静默刷新 snapshot、手动清空雇员缓存。页面可通过 `/processes` 和 `/process/select` 切换读取目标进程；连接 helper 后可见页面每 2 秒、隐藏页面每 10 秒轮询 `/probe`，首次探针只记录刷新签名，后续仅在角色、容器、雇员状态、雇员缓存或 `snapshotContentHash` 等探针签名变化时，延迟约 1.4 秒自动调用 `/snapshot/refresh`，避免每 2 秒重建完整 snapshot。`snapshotContentHash` 只暴露稳定内容哈希，不外显物品明细，可覆盖同容器等量交换、染色或绑定状态变化。
-- 2026-07-08 衣柜分析新增行动项过滤：`inventoryType=12002` 或雇员容器名以 `市场` 结尾的雇员市场上架物品会从商城拥有状态、可交易物品、重复物品、同模型和生产采集复制品等行动建议中排除，避免把已挂市场的物品当成可整理背包库存。
+- 2026-07-09 衣柜分析行动项过滤扩展：雇员市场上架物品和雇员已装备物品保留在原始 snapshot、衣柜统计和位置展示中。雇员市场上架物品会从商城拥有状态、可交易物品、重复物品、同模型和生产采集复制品等行动建议中全局排除，判定条件为 `inventoryType=12002` 或雇员容器名以 `市场` 结尾。雇员已装备物品只在重复相关建议中排除，判定条件为 `inventoryType=11000` 或雇员容器名以 `已装备` 结尾；它们不参与重复物品和同模型多余判断，但仍可参与商城拥有状态、收藏柜、套装、可交易、复制品和染色风险等其他判断。
 - 2026-07-08 `衣柜统计` 已替换原查漏补缺图鉴位置，按容器/背包折叠展示当前 snapshot 物品图标；展开时才渲染对应容器图标。单件物品卡片和商城散件支持右键打开灰机 wiki，移动端用长按。
 - 2026-07-08 已确认读取完整性提醒的产品分工：V2 网页顶部只显示角色、数据时间、基础收纳读取进度和雇员读取进度摘要；完整“还有哪些容器/雇员需要打开”的实时待读取清单更适合放进 `NSArmoireButler` exe GUI，避免用户在网页和游戏窗口之间反复切换。网页内完整容器结果继续放在 `衣柜统计`。
 - 2026-07-08 商城面板改为“分组图标总览 + 选中详情”结构：先按来源/标签分组，再在组内按 Global 商品编号倒序；未拥有图标灰化。详情卡展示本地化套装名、各地区价格、右上角地区短链、暂无链接状态、填充色块标签和散件位置/染色。商城数据校正页改为每次加载 10 条并支持继续滚动加载，同时可编辑 `regionalPriceLabels`。
+- 2026-07-10 商城校正页不再把 GLOBAL `storeUrl` 兜底显示为简中链接；简中服入口必须来自 `regionalStoreUrls.cn`，简中价格必须来自 `regionalPriceLabels.cn`，简中商品名必须维护到 `localizedNames.zh-CN`。片假名或日文为主的 GLOBAL 商品不能只依赖默认 `name`，否则会在简中界面继续显示日文商品名。
 - 2026-07-08 已接入生产采集复制品回收板块：构建阶段输出轻量 `public/data/armoire-crafter-gatherer-replica-catalog.json`，当前候选 275 件、无缺失项；衣柜清理按 snapshot 命中项展示所在位置、回收可得 `染剂兑换券 x4` 和返还染剂。
 - 2026-07-09 已接入角色级“已忽略装备”：用户可在清理建议物品卡片右键/移动端长按菜单中忽略某个 `itemId`，忽略后该物品种类不再参与收藏柜转入、套装散件、未绑定可交易、生产采集复制品、重复物品、同模型和染色风险等清理建议；原始 snapshot、衣柜统计和拥有状态不变。忽略配置跟随 IndexedDB 角色档案持久化，只保存 itemId 列表，并在角色配置中提供查看、取消和清空入口。旧版 `localStorage` 忽略列表会在打开对应角色档案时迁入角色记录。
+- 2026-07-10 套装幻影化分析已支持把投影台里的套装容器按 `MirageStoreSetItem.csv` 展开为散件拥有状态。`ArmoireGlamourSet.pieceSlotItemIds` 保留槽位顺序，用于读取到套装 bitmask 时判断部分套装；旧 catalog 没有该字段时，若检测到套装容器在投影台中，先按完整套装保守处理，避免误报缺件。下次刷新 `armoire-glamour-set-catalog.json` 和 chunk 数据时必须重新运行 `npm run build:armoire-catalog`，让静态数据带上 `pieceSlotItemIds`。
 
 ## 已读取文件
 
@@ -293,7 +295,7 @@ interface AsvelDresserItem {
 - “收藏柜未收纳”只表示该 `itemId` 当前不在收藏柜，不等同于未拥有。未收纳清单需要区分：已在背包/兵装库/投影台/雇员等其他容器中的物品标“已拥有”，其中任一拥有记录带染色时额外标“有染色”；完全没在 snapshot 中出现的物品才标“未拥有”。
 - 染色判定必须区分“记录到染色状态”和“收纳会清除染色”：进入或位于收藏柜、放入套装幻影化篓子会清除染色；投影台、背包、兵装库、雇员、鞍囊等其他收纳系统暂按不清除染色处理。
 - 顶部处理提示和图鉴高风险染色筛选只应把会清除染色的条目当成染色风险；普通已染色但当前收纳不清染色的条目可以在后置判定依据中作为状态记录展示。
-- 高风险染色清单还必须结合用户选择的贵重染剂类别。当前四类为：通用染剂、追加染剂1、追加染剂2、商城特殊染剂；默认贵重类别为追加染剂1、追加染剂2和商城特殊染剂。用户可以全不选，此时染色状态仍可在后置判定依据中看到，但顶部高风险清单不应继续提示。
+- 高风险染色清单还必须结合用户选择的贵重染剂。用户可选择通用染剂、追加染剂1、追加染剂2等类别，也可选择商城特殊染剂中的具体染剂；默认只选择具体染剂 `无瑕白`、`煤玉黑`、`柔彩粉`。不要默认把追加染剂1/2 整个类别视为贵重。用户可以全不选，此时染色状态仍可在后置判定依据中看到，但顶部高风险清单不应继续提示。
 - `NSArmoireInsightPanel.vue` 只负责分析面板组合；卡片外壳在 `NSArmoireActionCard.vue`，可读物品清单在 `NSArmoireReadableItemList.vue`，分析结果到 UI 的 view model 在 `useArmoireInsightViewModels.ts`，显示格式化工具在 `utils/insightDisplay.ts`。
 - `NSArmoireValidationPanel.vue` 只负责展示判定依据；分析结果到 UI 的 view model 在 `useArmoireValidationViewModels.ts`。
 
