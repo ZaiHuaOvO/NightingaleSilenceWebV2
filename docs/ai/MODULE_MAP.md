@@ -10,7 +10,7 @@
 - `src/config/site.ts`：集中维护站点名称、首页导航、分类入口、工具入口、来源项目路径和 API base path。
 - `src/composables/useFetch.ts`：提供第一版统一请求封装。
 - `src/services/apiBoundaries.ts`：提供 FFXIV 旧项目 API 边界信息；无后端的工具入口不会进入 API 边界列表。
-- `src/stores/locale.ts`：提供 locale store，已接入 `src/locales/ui.ts`、`document.lang` 和标题刷新。
+- `src/stores/locale.ts`：提供 locale store，常驻 core 文案并接入 `document.lang` 和标题刷新；页面消息包由路由并行按需加载。
 - `src/styles/`：已建立第一版 reset/theme/base/components/utilities 公共 CSS。
 - `src/components/`：已建立第一版 `AppButton.vue`、`AppPanel.vue`、`AppPixelWindow.vue`、`AppTopNav.vue`、`AppField.vue`、`AppToolbar.vue`、`AppTabs.vue`、`AppStatus.vue`。
 - `src/pages/ffxiv/components/ToolApiStatus.vue`：保留给调试或临时占位界面使用；正式工具工作台不展示内部 API 状态块。
