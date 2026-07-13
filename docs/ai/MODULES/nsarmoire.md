@@ -31,6 +31,7 @@
 - 2026-07-06 已继续拆分衣柜清理默认依赖：`衣柜清理` 不再默认请求完整 `armoire-cabinet-catalog.json` 和 `armoire-glamour-set-catalog.json`，改为按当前 snapshot itemId 请求 `public/data/armoire-cabinet-item-chunks/*.json` 和 `public/data/armoire-glamour-set-chunks/*.json`。完整收藏柜和套装 catalog 只在查漏补缺对应详情 tab 或手动刷新静态数据时加载。
 - 2026-07-06 已将三类 itemId chunk composable 改为批量合并 reactive state：同一批 snapshot itemId 对应的 chunk 请求完成后最多写入一次 `chunksByKey`，避免每个 chunk 返回都触发 catalog computed 和 snapshot analysis 重算。
 - 2026-07-06 生产预览性能 trace 继续确认：空进 `#/ffxiv/armoire` 不请求 `/data/armoire-catalog.json`，无主线程 long task；后置面板、商城 catalog 校验器和 helper API 已改为按需 chunk，空页不再加载 `itemDisplay-*`、`storeCatalog-*` 或 `nsarmoireHelperApi-*`。当前首屏最大剩余资源是全站中文像素字体 `fusion-pixel-12px-proportional-zh_hans.otf.woff2`，约 713 KB transfer。
+- 2026-07-13 已拆分工作台 catalog 加载边界：`NSArmoireWorkspace.vue` 不再重复实现商城 catalog/index 请求，也不再直接维护分区/tab 加载判断、snapshot chunk 编排和同模型目录延迟计时器。商城数据复用 `useArmoireStoreCatalog.ts`、`useArmoireStoreItemDisplayIndex.ts`，页面级按需加载统一由 `useArmoireWorkspaceCatalogLoading.ts` 管理；页面仍只负责 UI 编排、分析结果、helper 和角色缓存动作。空页面不请求 Armoire 数据，导入 snapshot 后的请求时机保持不变。
 - 2026-07-06 商城统计卡片已扩展为逐散件展示：每件散件显示已拥有/未拥有；已拥有散件列出 snapshot 中的容器位置和染色，超过 3 条副本时折叠剩余数量。地区商城入口按 `regionalStoreUrls` 拆成简中服、繁中服、GLOBAL 和 한국 按钮；该统计仍只表示当前角色 snapshot 中是否出现散件，不等同商城账号购买记录。
 - 2026-07-06 本地 helper 已将背包/兵装库/鞍囊/雇员物品实例的 `spiritbond` 透出到 snapshot。该字段用于验证可交易装备的实例绑定状态，不能由静态 `Item.csv` 交易字段替代；第一轮验证样本为两件 `经典眼镜`：HQ 已绑定、NQ 未绑定。实际 snapshot 中两条 `itemId=9298` 分别输出 `spiritbond: 1` 和 `spiritbond: 0`。当前分析口径无视 HQ/NQ，只使用绑定关系：`spiritbond === 0` 视为已知未绑定，`spiritbond > 0` 视为已绑定，缺失 `spiritbond` 时不进入未绑定可交易清单。
 - 2026-07-08 helper 前端接入已支持多进程选择、雇员缓存探针轮询、连接后静默刷新 snapshot、手动清空雇员缓存。页面可通过 `/processes` 和 `/process/select` 切换读取目标进程；连接 helper 后可见页面每 2 秒、隐藏页面每 10 秒轮询 `/probe`，首次探针只记录刷新签名，后续仅在角色、容器、雇员状态、雇员缓存或 `snapshotContentHash` 等探针签名变化时，延迟约 1.4 秒自动调用 `/snapshot/refresh`，避免每 2 秒重建完整 snapshot。`snapshotContentHash` 只暴露稳定内容哈希，不外显物品明细，可覆盖同容器等量交换、染色或绑定状态变化。
@@ -764,7 +765,7 @@ tools/nsarmoire-helper/*（历史内置副本/开发参考）
 ### 阶段 3.6：性能收缩重构
 
 1. 暂停商城卡片详情扩展和更多地区按钮改造，先解决空页面加载大 catalog 的问题。
-2. `useArmoireCatalog` 和 `useArmoireStoreCatalog` 不再在 composable 内部 `onMounted` 自动加载；由 `NSArmoireWorkspace.vue` 按 active section、active tab 和 snapshot 状态显式触发。
+2. catalog composable 不在内部 `onMounted` 自动加载；由 `useArmoireWorkspaceCatalogLoading.ts` 根据 active section、active tab 和 snapshot 状态统一触发，`NSArmoireWorkspace.vue` 只注入各数据加载器。
 3. `armoire-catalog.json` 不作为普通工作台运行时依赖；需要收藏柜、套装、图鉴、同模或染剂显示时只加载对应拆分索引；衣柜清理需要当前 snapshot 物品名、图标、收藏柜关系和投影台套装关系时，只加载对应 itemId 区间 chunk。
 4. `armoire-store-catalog.json` 只在进入查漏补缺的商城统计时加载。
 5. 分析函数先共享 `ownedIndex`，降低导入大 snapshot 后重复扫描成本。
@@ -838,7 +839,7 @@ tools/nsarmoire-helper/*（历史内置副本/开发参考）
 | 用户隐私                     | 物品、角色名、角色 ID、服务器属于个人数据                                                 | 默认本地处理，不上传服务器；错误信息和公开日志不输出角色 ID                                              |
 | 推荐误导                     | 染色、收藏柜、套装幻影化规则若判断错会误导用户处理物品                                    | 建立真实样本，风险建议用保守措辞                                                                         |
 | 数据体积                     | 完整 catalog 和图标可能较大                                                               | catalog 拆分，图标按需加载                                                                               |
-| 首屏性能                     | 当前完整 catalog 在空页面也会加载，低端设备和移动端会明显卡顿                              | 空页面不加载大 catalog；按分区和 tab 延迟加载；真实性能以生产预览和浏览器资源面板验证                    |
+| 首屏性能                     | 后续新增能力可能重新把完整 catalog 或多个分区数据带回空页面，低端设备和移动端会明显卡顿       | 保持空页面零 Armoire 数据请求；按分区和 tab 延迟加载；真实性能以生产预览和浏览器资源面板验证             |
 | 名称歧义                     | `Armoire` 在游戏中常指收藏柜，但本工具覆盖整个仓库清理                                    | 文档和 UI 中明确模块覆盖范围                                                                             |
 | 许可证                       | 参考 Asvel 代码时需遵守 MIT license                                                       | 若移植代码，保留许可证和来源说明                                                                         |
 
