@@ -28,9 +28,25 @@
 
 本模块不包含人物图片、模板选择、图片上传、图片裁剪或杂志式幻化模板。
 
+## 当前界面约定
+
+- 工作台不显示模块标题、来源状态、手动保存卡片或最近记录的顶部栏；草稿和输出设置会自动保存。
+- 预览工具栏集中放置导入、清空、卡片模式、全部单张排版和 ZIP 导出。空草稿时不显示“等待输入”或预览件数。
+- “导入”是唯一入口：默认填写石之家或 Eorzea Collection 链接，弹窗内可切换到文本识别；链接输入区域同时接受拖入 `.chara` 文件作为隐藏导入方式，不增加独立按钮。
+- 装备编辑器中的数据语言固定使用 `CHS`、`FR`、`DE`、`JP`、`EN`、`TC`、`KO` 缩写；切换后同时更新装备编辑和卡片文本。
+- 连续长图与单张卡片的透明 PNG 预览在日间主题使用浅灰白棋盘格，夜间主题使用深色底。该底色仅用于浏览器预览，不写入导出的 PNG。
+
+## 浏览器存储
+
+- 草稿：`nsitemcard.cardDraft.v2` 与兼容键 `nsitemcard.store.equipment`。
+- 渲染设置和布局：`nsitemcard.pngSettings.v1`。
+- 最近记录兼容数据：`nsitemcard.recentLoadouts`。当前不在主界面显示，保留以避免清除既有浏览器数据。
+- 存储值仅是本机浏览器状态，不能作为跨设备同步或正式备份机制。
+
 ## 目录职责
 
 - `components/ItemCardEquipmentEditor.vue`：装备、候选和染剂编辑。
+- `components/ItemCardImportDialog.vue`：网页链接导入，以及切换至文本识别入口。
 - `components/ItemCardTextImportDialog.vue`：文本语言、装备文本输入和识别状态。
 - `components/ItemCardRenderSettings.vue`：文字、颜色、坐标和输出语言设置。
 - `components/ItemCardCanvas.vue`：单张卡片预览和下载。
@@ -47,6 +63,7 @@
 - 开发阶段复用旧 Flask 服务，V2 API 前缀为 `/api/glamour/*`，端口 `8765`。
 - 复用后端接口契约，不引用 V2 glamour 页面的前端实现。
 - 主要接口：`POST /api/glamour/import-glamour-link`、`POST /api/glamour/equipinfo/parse-text`、`GET /api/glamour/search-items`、`GET /api/glamour/stains`、`GET /api/glamour/icon/:id`。
+- 数字物品 ID 文本不会调用专用解析接口；前端会以并发上限 4 逐槽搜索 `/api/glamour/search-items`，将 ID 替换为匹配物品名后再提交文本解析。
 - 上传、外部链接和后端返回均视为不可信输入。
 - `slot` 继续作为后端搜索和装备规则字段；前端用稳定的 `cardRowId` 区分同部位的多条记录。
 

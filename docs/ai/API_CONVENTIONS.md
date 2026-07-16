@@ -88,6 +88,7 @@ server: {
 
 | id | API base | health/check path | dev port |
 |----|----------|-------------------|----------|
+| `itemCard` | `/api/glamour` | `/health` | `8765` |
 | `glamour` | `/api/glamour` | `/health` | `8765` |
 | `plate` | `/api/plate` | `/presets` | `3456`，仅 legacy/dev fallback |
 | `armoire` | `/api/armoire` | `/health` | `8015` |
