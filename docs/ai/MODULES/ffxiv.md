@@ -1,8 +1,18 @@
+---
+summary: "FFXIV 分类入口、工具清单、游戏数据边界和隐藏校对页说明。"
+status: "active"
+scope: "#/ffxiv 分类页及其公共导航和数据约定。"
+source_of_truth: "src/config/site.ts、router、FfxivIndexPage 和各工具模块文档。"
+read_when: "调整 FFXIV 分类、工具入口、导航或公共游戏数据规则。"
+update_when: "工具增删、顺序、路由、模块状态或分类边界变化时。"
+verify: "对照 ffxivTools、router 和分类页实际显示。"
+---
+
 # FFXIV 模块计划
 
 ## 当前状态
 
-- 模块状态：分类导航已接入；`NSPlate` 已进入核心工作台收口，`NSGlamour` 仍待旧业务迁移，`NSArmoire` 第一阶段本地 helper / snapshot 工作台已接入；隐藏内部术语校对页已接入。
+- 模块状态：分类导航和五个公开工具入口已接入；`NSPlate`、物品卡片与 `NSGlamour` 已有真实工作台，时尚品鉴提供当前周作业，`NSArmoire` 公网页提供本地程序下载教程且完整工作台仅进入本地构建；隐藏内部术语校对页已接入。
 - 计划路由：`#/ffxiv`。
 - 计划页面入口：`src/pages/ffxiv/FfxivIndexPage.vue`。
 - 模块类型：分类导航页 / 工具入口页。
@@ -19,9 +29,11 @@
 ```text
 #/                 Home 纯视觉首页
 #/ffxiv            FFXIV 分类导航页
-#/ffxiv/glamour    NSGlamour 幻化工具
 #/ffxiv/plate      NSPlate 铭牌工具
-#/ffxiv/armoire    NSArmoire 衣柜管家
+#/ffxiv/glamour    NSGlamour 幻化工具
+#/ffxiv/armoire    NSArmoire 公网教程和下载页
+#/ffxiv/fashioncheck 时尚品鉴
+#/ffxiv/item-card  物品卡片
 #/ffxiv/term-review 内部术语校对页，不进公开导航
 ```
 
@@ -37,7 +49,7 @@
 FFXIV 分类页 `#/ffxiv`：
 
 - 负责工具导航。
-- 展示 `glamour`、`plate` 和未来更多 FFXIV 工具。
+- 按“铭牌、幻化、衣柜、时尚品鉴、物品卡片”顺序展示当前五个公开工具。
 - 可以比首页更信息化，但仍保持视觉统一。
 - 不承担具体工具的复杂编辑功能。
 
@@ -45,12 +57,14 @@ FFXIV 分类页 `#/ffxiv`：
 
 | 工具 | 目标路由 | 状态 |
 |------|---------|------|
-| 幻化工房 | `#/ffxiv/glamour` | EquipInfo/Template 双工作台已接入，当前复用旧 Flask API 契约 |
 | 铭牌工房 | `#/ffxiv/plate` | 核心工作台已接入，默认走静态 manifest + COS/CDN |
-| 衣柜管家 | `#/ffxiv/armoire` | 第一阶段本地 helper / snapshot 工作台已接入 |
+| 幻化工房 | `#/ffxiv/glamour` | EquipInfo/Template 双工作台已接入，当前复用旧 Flask API 契约 |
+| 衣柜管家 | `#/ffxiv/armoire` | 公网教程和下载页；完整工作台只进入 Helper 本地构建 |
+| 时尚品鉴 | `#/ffxiv/fashioncheck` | 当前周方案、金牌物品和来源页面已接入 |
+| 物品卡片 | `#/ffxiv/item-card` | 独立导入、编辑和多种导出工作台已接入 |
 | 术语校对 | `#/ffxiv/term-review` | 隐藏内部页，读取 `src/lib/ffxiv/terms.ts` |
 
-工具迁移状态按模块区分：`NSPlate` 不再按占位页处理；`NSGlamour` 已完成当前前端双工作台迁移，但后端和旧项目等价回归仍在推进；`NSArmoire` 处于第一阶段验证。
+工具迁移状态按模块区分：`NSPlate` 和 `NSGlamour` 已具备核心工作台；物品卡片和时尚品鉴已独立接入；`NSArmoire` 公网页与本地完整工作台已经分离。
 
 `#/ffxiv/term-review` 只服务人工校对游戏 CSV 术语、旧字段和网页 UI 文案边界，不写入 FFXIV 分类页公开工具卡。术语来源和校对规则见 `docs/ai/data/ffxiv/README.md`。
 
@@ -61,8 +75,11 @@ FfxivIndexPage
 ├── 分类页标题：FFXIV
 ├── 简短副标题：数据工具入口
 ├── 工具入口网格
+│   ├── NSPlate 工具卡
 │   ├── NSGlamour 工具卡
-│   └── NSPlate 工具卡
+│   ├── NSArmoire 工具卡
+│   ├── 时尚品鉴工具卡
+│   └── 物品卡片工具卡
 └── 返回首页 / 外链辅助区
 ```
 

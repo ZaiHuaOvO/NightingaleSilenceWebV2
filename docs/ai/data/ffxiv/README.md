@@ -1,3 +1,13 @@
+---
+summary: "V2 使用 FFXIV datamining CSV 的来源、注释、生成和公开边界。"
+status: "active"
+scope: "docs/ai/data/ffxiv、CSV 派生数据和各工具的数据生成器。"
+source_of_truth: "指定 datamining 仓库、生成脚本和派生 JSON checker。"
+read_when: "更新 CSV、映射、语言源、表注释或部署派生数据。"
+update_when: "上游仓库、提交、表结构、生成方式或公开范围变化时。"
+verify: "运行对应生成器/checker，并确认页面实际读取新的派生产物。"
+---
+
 # FFXIV CSV 数据指南
 
 本文件记录 V2 项目读取 FFXIV datamining CSV 的长期规则。它是所有 FFXIV 工具的数据地基，不属于某一个工具私有模块。

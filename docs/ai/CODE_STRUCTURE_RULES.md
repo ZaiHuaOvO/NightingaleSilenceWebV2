@@ -1,3 +1,13 @@
+---
+summary: "复杂业务的页面、composable、service、lib 和 API 分层规则。"
+status: "active"
+scope: "所有复杂 Vue 工具模块和跨文件重构。"
+source_of_truth: "src/pages、src/lib、src/services、src/composables 的现有职责边界。"
+read_when: "拆分大文件、增加业务逻辑、重构或设计共享抽象。"
+update_when: "目录职责、复杂度阈值或公共抽象策略改变时。"
+verify: "检查依赖方向、文件规模、跨页面引用和业务逻辑位置。"
+---
+
 # 代码结构规则
 
 ## 目的

@@ -1,3 +1,13 @@
+---
+summary: "Silence 角色 wiki 笔记到 V2 数据模型的字段和迁移约定。"
+status: "draft"
+scope: "src/data/silence 角色资料结构和来源对照。"
+source_of_truth: "用户提供的角色资料、characterProfiles.ts 和页面消费字段。"
+read_when: "接入新角色资料、扩展字段或迁移 wiki 内容。"
+update_when: "资料 schema、来源规则或页面所需字段变化时。"
+verify: "对照 TypeScript 类型、真实角色样本和详情页渲染。"
+---
+
 # Silence 角色资料 Schema 草案
 
 ## 目的

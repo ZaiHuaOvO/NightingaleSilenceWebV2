@@ -1,3 +1,13 @@
+---
+summary: "Silence 子项目的文件规模、模块边界和后续优化任务。"
+status: "draft"
+scope: "src/pages/silence 和相关数据、样式、composables。"
+source_of_truth: "当前 Silence 文件结构、引用关系和实际性能表现。"
+read_when: "继续拆分 Silence、评估耦合或安排优化批次。"
+update_when: "计划任务完成、文件职责变化或出现新的性能瓶颈时。"
+verify: "重新统计文件规模、依赖关系并运行页面回归。"
+---
+
 # Silence 子项目优化计划
 
 ## 范围
@@ -257,7 +267,7 @@ images: {
 - 图片转码、裁切、压缩放到本地脚本或构建前流程，不在用户请求时处理。
 - 正式部署使用 Nginx/CDN 长缓存静态图。
 - 对图片路径做版本化，例如 `/assets/silence/v1/...`，换图时递增版本或使用 hash 文件名。
-- 保留构建产物大小检查，后续可加 `npm run analyze:silence` 或脚本输出 Silence chunk 与图片总量。
+- 保留构建产物大小检查；后续可新增名为 `analyze:silence` 的 npm script，或用独立脚本输出 Silence chunk 与图片总量。该命令当前尚不存在，不能作为现有验证步骤执行。
 
 ### 阶段 5：内容规模增长后的优化
 

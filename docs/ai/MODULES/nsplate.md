@@ -1,3 +1,13 @@
+---
+summary: "铭牌工作台的静态数据、Canvas、信息层、图片模式、导出和兼容契约。"
+status: "active"
+scope: "#/ffxiv/plate、src/pages/plate、src/lib/plate 和静态 manifest。"
+source_of_truth: "NSPlate 代码、旧 NSPortable 样本、manifest 和回归矩阵。"
+read_when: "修改铭牌素材、图层、信息、图片、Canvas、配置或导出。"
+update_when: "数据源、图层语义、草稿格式、渲染、导出或兼容规则变化时。"
+verify: "运行静态数据检查、模块回归和真实 Canvas/导出验证。"
+---
+
 # NSPlate 模块计划
 
 ## 当前状态
@@ -134,7 +144,7 @@
 
 2026-07-05 已完成第五十九段静态 manifest 闭环：`scripts/build-nsplate-manifest.mjs` 默认把 `files._meta.imgBase` 写为 `https://img.nightingalesilence.com`，并生成 `presets.json`、`files.json`、`manifest-meta.json` 到 `public/data/plate/`；正式生成默认保留旧 API 标记的未实装素材，让未实装素材可在 V2 中正常选择，同时继续剔除 Plate 素材范围内的占位编号。新增 `scripts/check-nsplate-static-manifest.mjs` 和 `npm run check:plate-static` 校验 manifest 结构、COS base、未实装策略、占位过滤和可选 COS 抽样访问。此切片不复制 COS 素材、不改变 Canvas 坐标、不改变导出文件结构。
 
-2026-07-05 已完成第六十段离线缩略图生成工具：新增 `scripts/build-nsplate-thumbnails.mjs` 和 `npm run build:plate-thumbnails`，使用本机 ImageMagick CLI 从静态 `files.json` 读取素材路径，并从本机解包目录生成 `256` 长边 PNG 缩略图到仓库外 `../.cache/nsplate-thumbnails/256/`。本机验证源目录 `H:\解包\nine-1326554799` 可覆盖当前公开 manifest 的 `4041` 个素材，已生成 `4041` 张缩略图，总体积约 `86.63MB`；URL 编码的 `ui/sprites/class` 职业图标路径会在文件系统访问和输出时按路径段解码，避免中文文件名误判缺失。为方便 COSBrowser 手动同步，同一批缩略图也已生成到本机桶同步目录 `H:\解包\nine-1326554799\plate-preview\256`，同步到桶根后对应 URL 前缀为 `https://img.nightingalesilence.com/plate-preview/256`。COS 统计 `plate-preview/256/ui/` 为 `4064` 个对象、`90,834,598` 字节，本地 PNG 为 `4041` 个、同字节数，差异来自目录/占位对象计数；远端抽样校验通过后，正式 `public/data/plate/files.json` 已写入 `_meta.previewImgBase` 和 `_meta.previewMaxEdge`。此切片不新增 npm 依赖、不把缩略图提交进 V2 仓库。
+2026-07-05 已完成第六十段离线缩略图生成工具：新增 `scripts/build-nsplate-thumbnails.mjs` 和 `npm run build:plate-thumbnails`，使用本机 ImageMagick CLI 从静态 `files.json` 读取素材路径，并从本机解包目录生成 `256` 长边 PNG 缩略图到仓库外 `../.cache/nsplate-thumbnails/256/`。验证用 `<FFXIV 解包目录>` 可覆盖当前公开 manifest 的 `4041` 个素材，已生成 `4041` 张缩略图，总体积约 `86.63MB`；URL 编码的 `ui/sprites/class` 职业图标路径会在文件系统访问和输出时按路径段解码，避免中文文件名误判缺失。为方便 COSBrowser 手动同步，同一批缩略图也已生成到 `<COS 同步目录>/plate-preview/256`，同步到桶根后对应 URL 前缀为 `https://img.nightingalesilence.com/plate-preview/256`。COS 统计 `plate-preview/256/ui/` 为 `4064` 个对象、`90,834,598` 字节，本地 PNG 为 `4041` 个、同字节数，差异来自目录/占位对象计数；远端抽样校验通过后，正式 `public/data/plate/files.json` 已写入 `_meta.previewImgBase` 和 `_meta.previewMaxEdge`。此切片不新增 npm 依赖、不把缩略图提交进 V2 仓库。
 
 2026-07-05 已完成第六十一段静态模式本地验收和下载命名收口：`npm run build:plate-manifest` 默认改为生成带 `https://img.nightingalesilence.com/plate-preview/256` 缩略图前缀的正式 manifest，保留 `npm run build:plate-manifest:no-preview` 作为临时排障入口；新增 `npm run check:plate-static:preview` 固化远端缩略图抽样校验。新增 `src/lib/plate/downloadFilenames.ts`，统一配置 JSON、扁平 PNG/JPG 和分层 ZIP 的下载文件名，避免继续使用旧的 `Date.now()` 裸时间戳和 `composite_` / `layered_export_` 前缀。本机静态模式验证使用 `VITE_NSPLATE_DATA_SOURCE=static-manifest` 和 `VITE_NSPLATE_MANIFEST_BASE=/data/plate` 启动，`#/ffxiv/plate` 只请求 `/data/plate/presets.json`、`/data/plate/files.json`，没有请求 `/api/plate/presets` 或 `/api/plate/files`；素材卡缩略图请求 `plate-preview/256`，画布原图仍请求 `https://img.nightingalesilence.com/ui/...`。同时验证了素材选择、自定义图片上传裁切、配置导出、PNG 导出和分层 ZIP 导出。此切片不改变 Canvas 坐标、素材选择语义或导出 ZIP 内部图层条目名。
 
@@ -219,7 +229,7 @@ src/pages/plate/
 - `src/lib/plate/dataSource.ts` 是 NSPlate 数据源契约边界；页面和 composable 不应直接假设数据一定来自旧 `NSPortable`。
 - `services/nsplateDataSource.ts` 负责选择数据源。默认使用静态 manifest，读取 `VITE_NSPLATE_MANIFEST_BASE` 下的 `presets.json` 和 `files.json`；`VITE_NSPLATE_MANIFEST_BASE` 默认 `/data/plate`。只有显式设置 `VITE_NSPLATE_DATA_SOURCE=legacy-api` 时才回旧 `/api/plate`。
 - `npm run build:plate-manifest` 负责从旧兼容 API 生成正式静态 manifest。默认源为 `http://127.0.0.1:3456/api`，默认素材 base 为 `https://img.nightingalesilence.com`，并默认写入 `https://img.nightingalesilence.com/plate-preview-webp/256`、`previewMaxEdge=256` 和 `previewFormat=webp`；可用 `--source-api-base`、`--output-dir`、`--img-base`、`--preview-img-base`、`--preview-format` 或对应环境变量覆盖。正式 manifest 默认保留未实装素材，让它们能在 V2 中选择；只剔除 Plate 素材占位编号。若未来需要临时生成隐藏未实装素材的测试 manifest，必须用 `--exclude-unreleased` 或 `NSPLATE_INCLUDE_UNRELEASED=0` 配合独立输出目录，不得覆盖公开 `public/data/plate/`。生成物只包含 JSON manifest，不复制 COS 游戏素材。临时排查缩略图 fallback 时使用 `npm run build:plate-manifest:no-preview`。
-- `npm run build:plate-thumbnails` 负责从 `files.json` 和本机解包目录生成离线缩略图。当前 package script 固定生成 Q82 WebP，默认长边 `256px`，默认输出到仓库外 `../.cache/nsplate-thumbnails/256/`；如果使用 COSBrowser 同步素材桶，可用 `--output-dir "H:\解包\nine-1326554799\plate-preview-webp\256"` 直接写入本机桶同步目录。缩略图目录不属于 V2 源码资产。
+- `npm run build:plate-thumbnails` 负责从 `files.json` 和本机解包目录生成离线缩略图。当前 package script 固定生成 Q82 WebP，默认长边 `256px`，默认输出到仓库外 `../.cache/nsplate-thumbnails/256/`；如果使用 COSBrowser 同步素材桶，可用 `--output-dir "<COS 同步目录>/plate-preview-webp/256"` 直接写入本机桶同步目录。缩略图目录不属于 V2 源码资产。
 - `npm run check:plate-static` 校验 `public/data/plate/` 的静态 manifest 结构、COS base、未实装/占位过滤和关键分类；需要抽样访问 COS 原图时使用 `node scripts/check-nsplate-static-manifest.mjs --check-remote`，上传缩略图并写入 `previewImgBase` 后使用 `npm run check:plate-static:preview` 校验缩略图 URL。
 - `services/nsplateApi.ts` 只负责旧 `/api/plate/presets`、`/api/plate/files`、`/api/plate/export-layered-zip` 调用；`services/nsplateAdapters.ts` 负责把旧接口返回归一成 V2 展示模型。
 - 素材 URL 由 adapter 根据 `_meta.imgBase`、`_meta.previewImgBase` 和 `_meta.previewFormat` 生成；兼容旧服务可能返回的 `/portable/img`、`/portable/img-preview/256` 前缀，组件不硬编码 `localhost`、端口或旧挂载前缀。素材 id 不应依赖接口数组顺序；如需兼容旧 V2 草稿，可通过 `legacyIds` 在加载后归一到稳定 id。
@@ -266,7 +276,7 @@ src/pages/plate/
 - 2026-07-05 验证操作区二次校正：`npm run check` 通过；Browser 运行时可连接但 `agent.browsers.list()` 返回空，回退 Playwright + 本机 Chrome 验证 `http://127.0.0.1:5173/#/ffxiv/plate`。桌面 `1440×1000` 下信息层卡片显示 7 个 Pixelarticons `eye / eye-off` 状态按钮，原生 checkbox/radio 数量为 0，右侧内部 layer type 文案数量为 0；点击首个状态按钮后 `data-enabled` 从 `true` 变为 `false`。右侧菜单入口为 Pixelarticons `file` SVG，展开后包含导入配置、粘贴配置、复制配置、导出配置、导出 PNG/JPG/分层 ZIP 和 `导出 200%`，不包含两个清空按钮。画布底部两个清空按钮可见；移动端 `390×844` 下 `scrollWidth - clientWidth = 0`，两个清空按钮仍在画布下方显示。
 - 2026-07-05 验证图层顺序便签和信息层合并：`npm run check` 通过；Browser 插件返回无可用浏览器，回退 Playwright + 本机 Chrome。静态 manifest 模式启动 `http://127.0.0.1:5176/#/ffxiv/plate`，注入出框自定义图草稿后展开“图层顺序”便签，确认列表仅显示一个“信息层”，`铭牌背衬` 位于最底部，出框角色层显示上下移动按钮；点击上移后 `nsplate.draft.v1.customPortrait.popoutLayerAnchor` 从 `abovePortraitFrame` 写回 `aboveNameplateDecorations`。浏览器端调用分层导出收集逻辑，`sourceType=info` 的图层数量为 `1`，名称为 `信息层`，自定义图片仍导出为 `自定义图片` 和 `自定义图片（出框）` 两层。移动端 `390×844` 下 `scrollWidth === clientWidth === 390`，便签按既有规则隐藏，无 console/page error。
 - 2026-07-05 验证静态 manifest：`npm run build:plate-manifest` 从本机旧兼容 API 生成 `public/data/plate/presets.json`、`files.json`、`manifest-meta.json`；旧源素材 `4291` 个，正式 manifest 保留 `4290` 个，包含未实装素材 `249` 个，只移除占位素材 `1` 个。`npm run check:plate-static` 通过；`node scripts/check-nsplate-static-manifest.mjs --check-remote --remote-samples 5` 通过，抽样 COS URL 可访问。
-- 2026-07-05 验证离线缩略图：`npm run build:plate-thumbnails -- --source-dir "H:\解包\nine-1326554799" --limit 20 --force` 通过，样本原图 `512×840 / 124566B` 缩为 `156×256 / 11974B`。随后全量生成通过，输出 `H:\NightingaleSilenceWeb\.cache\nsplate-thumbnails\256`，共 `4041` 张 PNG、约 `86.63MB`、缺失 `0`、失败 `0`。同一批缩略图再次生成到 `H:\解包\nine-1326554799\plate-preview\256`，共 `4041` 张 PNG、约 `86.63MB`、缺失 `0`、失败 `0`，用于 COSBrowser 同步。`node scripts/build-nsplate-manifest.mjs --preview-img-base https://img.nightingalesilence.com/plate-preview/256 --preview-max-edge 256` 已写入正式 manifest；`node scripts/check-nsplate-static-manifest.mjs --expect-preview --check-preview-remote --remote-samples 10` 通过。
+- 2026-07-05 验证离线缩略图：`npm run build:plate-thumbnails -- --source-dir "<FFXIV 解包目录>" --limit 20 --force` 通过，样本原图 `512×840 / 124566B` 缩为 `156×256 / 11974B`。随后全量生成到 `../.cache/nsplate-thumbnails/256`，共 `4041` 张 PNG、约 `86.63MB`、缺失 `0`、失败 `0`；同一批缩略图也生成到 `<COS 同步目录>/plate-preview/256` 用于 COSBrowser 同步。`node scripts/build-nsplate-manifest.mjs --preview-img-base https://img.nightingalesilence.com/plate-preview/256 --preview-max-edge 256` 已写入正式 manifest；`node scripts/check-nsplate-static-manifest.mjs --expect-preview --check-preview-remote --remote-samples 10` 通过。
 - 2026-07-05 验证静态模式前端闭环：`npm run build:plate-manifest`、`npm run check:plate-static` 和 `npm run check:plate-static:preview` 通过；不设置 `VITE_NSPLATE_DATA_SOURCE` 启动本地 Vite 后，Playwright + 系统 Chrome 验证 `http://127.0.0.1:5176/#/ffxiv/plate`。请求记录包含 `/data/plate/presets.json`、`/data/plate/files.json` 和 `https://img.nightingalesilence.com/plate-preview/256/...`，不包含 `/api/plate/presets` 或 `/api/plate/files`。桌面 `1440×900` 和移动 `390×844` 均无 Vite overlay、无 console/page error；切换到铭牌 tab 可正常渲染，移动端 `scrollWidth === clientWidth`。下载文件名样本：`plate-config_20260705-152958.json`、`plate-nameplate_20260705-152959.png`、`plate-layers_20260705-152959.zip`。
 - 2026-07-05 已收口状态图标语义：素材系列、素材卡和图层顺序便签的“已选择/已有选择”状态统一使用项目内四角星 `sparkles.svg`；未选择状态使用中性空心图标；信息层启用/禁用继续使用像素化 `eye / eye-off`，不再使用原生 checkbox/radio 或通用类型声明文案暴露给用户。
 - 2026-07-05 验证状态图标收口：`npm run check`、`npm run check:plate-static` 和 `npm run check:plate-static:preview` 通过；Browser 插件运行时无可用浏览器，回退 Playwright + 本机 Chrome 验证 `http://127.0.0.1:5176/#/ffxiv/plate`。桌面 `1440×900` 和移动 `390×844` 均无 Vite overlay、无 console/page error；切换到铭牌 tab 后选择首个素材，素材系列选中态和素材卡 active 态可正常出现，页面只请求 `/data/plate/presets.json`、`/data/plate/files.json` 和 COS 缩略图，不请求旧 `/api/plate/presets` 或 `/api/plate/files`；移动端无横向溢出。
@@ -900,6 +910,6 @@ NSPlate 已经形成一部分业务私有样式，这些样式不要求直接调
 ## 待确认事项
 
 - 英文界面下信息层疑似仍有坐标或字体度量偏差：重点核对国际服/国服信息预设中的标题、角色名、服务器、等级/职业名、军衔、作息条和活动图标文本。下次处理时用旧 `NSPortable` 英文输出与 V2 英文输出做截图/像素回归，优先判断是 `INFO_PRESET_DEFINITIONS` 坐标映射、字体 fallback、文字 `measureText` 差异还是本地化文本长度导致的偏移。
-- 未来是否需要新增自动上传 COS 的脚本；当前已确认可通过 COSBrowser 同步 `H:\解包\nine-1326554799\plate-preview\256`。
+- 未来是否需要新增自动上传 COS 的脚本；当前已确认可通过 COSBrowser 同步 `<COS 同步目录>/plate-preview/256`。
 - 旧主题、视口缩放、旧服务端导出配置和未迁移字段当前策略是“不写入 V2 状态”；是否恢复需以后单独确认。
 - 全量回归样本配置已固定到 `docs/ai/MODULES/nsplate-regression.md`；后续新增功能需要同步扩展该矩阵。

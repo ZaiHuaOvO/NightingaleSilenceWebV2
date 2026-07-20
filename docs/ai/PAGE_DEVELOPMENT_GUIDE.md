@@ -1,3 +1,13 @@
+---
+summary: "新增或迁移 Vue 页面时的文档、路由、组件、文案和验证流程。"
+status: "active"
+scope: "src/pages 下的新页面、页面级组件和样式。"
+source_of_truth: "AGENT_WORKFLOW、现有页面模式、router、locales 和公共组件。"
+read_when: "新增页面、迁移旧页面或重构页面组件边界。"
+update_when: "页面模板、路由方式、本地化或最低验证要求改变时。"
+verify: "按检查清单创建样例或对照最近实现的完整页面。"
+---
+
 # 页面开发指南
 
 ## 新增页面前置规则
@@ -20,6 +30,8 @@ docs/ai/MODULES/<module>.md
 如果页面非常简单，不单独建立模块文档也可以，但必须在计划里说明原因。复杂页面默认必须建模块文档。
 
 ## 新增页面流程
+
+完整 session 生命周期按根目录 `AGENT_WORKFLOW.md` 执行。本指南只补充页面开发专项要求。
 
 1. 阅读 `PROJECT_CONTEXT.md`、`MODULE_MAP.md` 和对应模块文档。
 2. 确认路由状态仍为未实现或待迁移，避免重复创建。
@@ -114,19 +126,33 @@ http://localhost:5173/#/ffxiv/xxx
 ## API 和数据规则
 
 - 不要在组件里硬编码 `localhost` 或端口。
-- `useFetch.ts` 创建前，涉及 API 的页面应先在计划里明确临时调用方式。
+- 涉及 API 的页面优先使用现有 `useFetch.ts`、service 或 adapter；新增边界前先确认现有封装无法满足。
 - Canvas、解析、导出、映射等复杂逻辑应放 `src/lib/`，不要塞进页面组件。
 - 上传和外部链接导入都视为不可信输入。
+
+## 开发中运行要求
+
+页面行为修改必须在开发过程中运行真实应用，不能等全部代码写完后只跑一次构建：
+
+1. 启动或复用当前仓库 Vite 服务，确认端口没有被其他项目占用。
+2. 打开本次修改的真实 hash 路由，执行目标用户路径。
+3. 修改交互后立即复测对应操作，检查 Vite overlay、console error、page error 和失败请求。
+4. 涉及布局、文字长度或响应式时，至少检查一个桌面和一个移动视口。
+5. 涉及 Canvas、拖拽、上传、裁剪、导入或导出时，使用代表性样本检查结果，不只确认按钮可点击。
+
+仅 Markdown、注释或不影响运行时的项目规则修改可以不启动页面，豁免规则以 `AGENT_WORKFLOW.md` 为准。
 
 ## 验证清单
 
 - [ ] `npm run dev` 启动无编译错误。
 - [ ] 浏览器访问对应 hash 路由页面正常渲染。
-- [ ] 页面在 560px / 900px / 1120px+ 宽度下布局正常。
-- [ ] TypeScript 类型检查通过：`npx vue-tsc --noEmit` 或 `npm run build`。
+- [ ] 已执行本次修改对应的真实用户操作，不只是打开页面。
+- [ ] 无 Vite overlay、console error、page error 或本次改动引起的失败请求。
+- [ ] 涉及响应式时，页面在代表性桌面和移动视口下布局正常且无横向溢出。
+- [ ] TypeScript 类型检查通过：`npm run typecheck` 或包含类型检查的 `npm run build`。
 - [ ] 固定 UI 文案检查通过：`npm run check:i18n`。
-- [ ] 无控制台错误或警告。
 - [ ] 如果改 Canvas、拖拽、上传、裁剪、导出，使用真实数据和浏览器实际验证。
+- [ ] 对应模块文档的 `update_when` 已核对，必要文档与代码同步更新。
 
 ## 禁止事项
 

@@ -1,3 +1,13 @@
+---
+summary: "NSPlate、NSGlamour 等高密度工房页的公共布局和控件契约。"
+status: "active"
+scope: "FFXIV 工房工作台的密度、面板、响应式和视觉降噪。"
+source_of_truth: "现有工房页面、公共组件和 src/styles。"
+read_when: "新增或调整 NSPlate、NSGlamour 及同类复杂工具页。"
+update_when: "工房公共控件、布局密度或响应式策略改变时。"
+verify: "跨工房页面对照并运行桌面与移动端视觉检查。"
+---
+
 # 工房工作台样式契约
 
 ## 定位

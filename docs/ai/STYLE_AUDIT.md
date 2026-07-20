@@ -1,3 +1,13 @@
+---
+summary: "全站样式 token、公共控件、顶栏和 Style Lab 的审计边界。"
+status: "active"
+scope: "src/styles、公共组件、顶栏及跨页面视觉一致性。"
+source_of_truth: "src/styles、src/components 和 Style Lab 当前实现。"
+read_when: "修改全站样式、公共 token、顶栏、弹窗或主题行为。"
+update_when: "公共视觉语言、token 或组件样式责任变化时。"
+verify: "对照 CSS 引用、Style Lab 和受影响页面截图。"
+---
+
 # 全站样式审计记录
 
 ## 定位

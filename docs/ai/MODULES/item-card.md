@@ -1,10 +1,20 @@
+---
+summary: "独立物品卡片工作台的导入、装备编辑、渲染、存储和 API 边界。"
+status: "active"
+scope: "#/ffxiv/item-card 和 src/pages/item-card 私有实现。"
+source_of_truth: "ItemCardPage、item-card components/locales、glamour API 契约。"
+read_when: "修改物品卡片导入、编辑、排版、导出或存储。"
+update_when: "用户流程、API、草稿键、渲染格式或隔离边界改变时。"
+verify: "运行真实导入、编辑、单张/批量导出和响应式页面检查。"
+---
+
 # 物品卡片模块
 
 ## 定位与边界
 
 - 目标路由：`#/ffxiv/item-card`。
 - 页面入口：`src/pages/item-card/ItemCardPage.vue`。
-- 来源功能：旧 `H:\NightingaleSilenceWeb\NSGlamour` 已删除的 `/card` 工作流，不是 `/template`。
+- 来源功能：仓库同级旧 `../NSGlamour` 已删除的 `/card` 工作流，不是 `/template`。
 - 恢复依据：2026 年 6 月 Codex 会话中保留的完整 `card.html`、早期完整 `card.js` 和后续代码片段。
 - 迁移原则：旧 `NSGlamour` 和 V2 `src/pages/glamour/` 均保持只读，不移动、不删除、不改写其文件。
 - 模块隔离：页面、组件、状态、Canvas 渲染、本地化和浏览器存储均位于 `src/pages/item-card/`。

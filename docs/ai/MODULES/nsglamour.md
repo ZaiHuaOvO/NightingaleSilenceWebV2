@@ -1,3 +1,13 @@
+---
+summary: "幻化 EquipInfo/Template 双工作台、共享草稿、旧后端和模板渲染契约。"
+status: "active"
+scope: "#/ffxiv/glamour、src/pages/glamour 和 src/lib/glamour。"
+source_of_truth: "V2 glamour 代码、旧 NSGlamour 行为、API 与模板回归样本。"
+read_when: "修改幻化导入、装备、染剂、模板、图片、Canvas 或后端。"
+update_when: "用户可见行为、API、模板、草稿、渲染或生产边界变化时。"
+verify: "运行契约检查并实测 EquipInfo/Template 往返、预览和导出。"
+---
+
 # NSGlamour 模块计划
 
 ## 当前状态
@@ -98,7 +108,7 @@
 
 - 旧 localStorage 迁移提示。
 - `/template` 仍未完成全部旧 Canvas 精确渲染器；当前 Eorzea Magazine / horizontal / Double Pic / EC / Risingstones / Silence Fashion 已有 Canvas renderer，Eorzea Magazine、horizontal、Double Pic 左图 mask 与 Silence Fashion 背景已按运行时资源接入并按需懒加载，EC / Risingstones 按需通过现有 `/api/glamour/icon/<id>` 读取装备图标，图标加载失败时回退 renderer 内部占位。
-- `/template` 模板图片、字体和第三方裁剪依赖尚未进入 V2 构建产物；后续必须先确认资产提交/公开策略和按需加载边界。当前 V2 裁剪层为原生轻量实现，不代表旧 Cropper.js 已进入构建产物。
+- `/template` 只把当前六套 renderer 实际需要的背景和 mask 放入 V2 构建产物，并按需加载；旧模板目录的其余图片、旧字体和 Cropper.js 没有整包迁入。新增资产仍必须先确认提交/公开策略和按需加载边界，当前裁剪层继续使用原生轻量实现。
 
 已确认图片暂存约束：
 

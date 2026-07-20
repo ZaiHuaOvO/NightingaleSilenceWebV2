@@ -1,3 +1,13 @@
+---
+summary: "NSPlate 的固定验收样本、页面操作、数据请求和导出回归矩阵。"
+status: "active"
+scope: "#/ffxiv/plate 的静态模式、Canvas、配置和导出。"
+source_of_truth: "check-nsplate-regression 脚本、真实 manifest 和浏览器结果。"
+read_when: "实现或 review 任何可能影响铭牌行为的改动。"
+update_when: "新增稳定能力、修复关键回归或验收样本变化时。"
+verify: "运行 npm run check:plate-regression 并核对记录的关键断言。"
+---
+
 # NSPlate 回归矩阵
 
 ## 定位
